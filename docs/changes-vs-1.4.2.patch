@@ -1,0 +1,757 @@
+diff --git a/lib/client.js b/lib/client.js
+index 93d52f8..877c796 100644
+--- a/lib/client.js
++++ b/lib/client.js
+@@ -2148,6 +2148,98 @@ window.__ModuleLoader__.load({
+ 				     sectionList): the ul/li carry no default list styling. */
+ 				  .we-picker__section-list { margin: 0; padding: 0; list-style: none; }
+ 
++				  /* ══ 【布局优化 2026-11-07】设置页「壁纸引擎」的骨架 ═══════════════════════
++				     改动前的实际状态：.we-picker（根容器）、.we-picker__card-shell（外层卡片）、
++				     .we-picker__card-head / __card-name / __card-desc（标题行三段）**一条 CSS
++				     规则都没有** —— 于是卡头是三个裸 span 挤在同一行、外层 li 没有内边距、
++				     根容器没有纵向间距，整页看起来"贴边 + 标题行粘连"。
++				     下面把这几处补齐，并统一纵向节奏（gap 只在根容器给一次，子级不再各写一套）。
++				     ⚠️ 只作用于 .we-picker（设置页）：右侧栏快捷面板走 .we-qp，是另一套类名，
++				        不会受影响。
++				     ⚠️ 本块在模板字符串里：正文**不得出现反引号**（会提前终止字符串），
++				        类名一律裸写。 */
++
++				  /* 根容器：纵向流 + 统一节奏。加载态 / 错误态那两个早退分支也用这个类，
++				     所以这里只给中性的 flex 列，不写任何依赖具体子节点的选择器。 */
++				  .we-picker {
++				    display: flex;
++				    flex-direction: column;
++				    gap: 14px;
++				    min-width: 0;
++				    width: 100%;
++				  }
++
++				  /* 外层卡片：设置页里这一整块就是"一张卡"。留出内边距 + 圆角，
++				     窄屏（侧栏档/小窗）自动收窄内边距，避免内容被挤成竖条。 */
++				  .we-picker__card-shell {
++				    display: block;
++				    min-width: 0;
++				    padding: 16px 18px;
++				    border-radius: 14px;
++				    background: var(--dsw-alias-bg-layer-1, rgba(128, 128, 128, 0.06));
++				    border: 1px solid var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.18));
++				    box-sizing: border-box;
++				  }
++
++				  /* 卡头：插件名 + 数量徽标 + 一句说明，一行排开、底部一条hairline 分隔。
++				     允许换行（窄屏时说明掉到第二行），但标题与徽标始终同排。 */
++				  .we-picker__card-head {
++				    display: flex;
++				    flex-wrap: wrap;
++				    align-items: center;
++				    gap: 8px 10px;
++				    min-width: 0;
++				    padding-bottom: 12px;
++				    border-bottom: 1px solid var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.18));
++				  }
++				  .we-picker__card-name {
++				    font-size: 1.05em;
++				    font-weight: 600;
++				    letter-spacing: 0.01em;
++				    color: var(--we-ink, inherit);
++				    min-width: 0;
++				    white-space: nowrap;
++				  }
++				  /* 数量徽标：胶囊。⚠️ 这里只定义"卡头里那一枚"的**基样式**；
++				     缩略图卡片右上角那一枚由更具体的选择器
++				     .we-picker__card .we-picker__card-badge 覆盖（绝对定位角标），
++				     两者互不干扰 —— 该规则本来就在，不要合并。 */
++				  .we-picker__card-head > .we-picker__card-badge {
++				    flex: none;
++				    display: inline-flex;
++				    align-items: center;
++				    justify-content: center;
++				    min-width: 22px;
++				    height: 20px;
++				    padding: 0 7px;
++				    border-radius: 999px;
++				    font-size: 0.72em;
++				    font-weight: 600;
++				    line-height: 1;
++				    color: var(--we-accent, #4f8cff);
++				    background: color-mix(in srgb, var(--we-accent, #4f8cff) 16%, transparent);
++				    box-sizing: border-box;
++				  }
++				  /* 说明文字：次级墨色、占满剩余宽度、放不下就省略号（不换行撑高卡头）。 */
++				  .we-picker__card-desc {
++				    flex: 1 1 auto;
++				    min-width: 0;
++				    font-size: 0.8em;
++				    line-height: 1.4;
++				    color: var(--we-ink-3, rgba(128, 128, 128, 0.75));
++				    overflow: hidden;
++				    text-overflow: ellipsis;
++				    white-space: nowrap;
++				  }
++
++				  /* 窄容器兜底（设置窗缩到很窄 / 侧栏档）：内边距收紧、说明独占一行。 */
++				  @media (max-width: 520px) {
++				    .we-picker__card-shell { padding: 12px 12px; border-radius: 12px; }
++				    .we-picker__card-desc { flex-basis: 100%; white-space: normal; }
++				  }
++				  /* 切页签后内容区跟着换高，避免卡头与页签栏之间出现半行空隙。 */
++				  .we-picker > .we-tabpanel { min-width: 0; }
++
+ 				  /* 统一运行器发放绘制资格，不通过共享令牌或任意后代清底。 */
+ 				  body[data-we-glass-page] :where([data-we-surface-runtime="settings-window"],[data-we-surface-runtime="declared"],[data-we-layout-runtime]) {
+ 				    background: transparent !important;
+@@ -2532,8 +2624,15 @@ window.__ModuleLoader__.load({
+ 				  /* ── 侧栏窄栏兜底：展开「全局字体」后的排版角色表比栏宽，横向滚动而不是撑破面板。 ── */
+ 				  .we-qp__tabbody .we-picker__font-table { max-width: 100%; overflow-x: auto; }
+ 
+-				  /* ── 页签栏（分段式）：玻璃轨道 + 滑动指示胶囊。窄抽屉里六枚等宽页签
+-				     恰好放下两至三字标签；指示胶囊平移走 transform（合成器属性）。 ── */
++				  /* ── 页签栏（分段式）：玻璃轨道 + 滑动指示胶囊。窄抽屉里等宽页签
++				     恰好放下两至三字标签；指示胶囊平移走 transform（合成器属性）。
++				     【布局优化 2026-11-07】设置页现为 4 枚（壁纸库/外观/播放/系统），
++				     尺寸放开一档见下方 .we-picker .we-tabs__tab 那条规则。 ── */
++				  /* 【布局优化 2026-11-07】页签从 6 个减到 4 个（壁纸库 / 外观 / 播放 / 系统）：
++				     等分宽度由行内 calc 现算，语义不变，但每枚获得更多横向空间 ⇒
++				     把高度与字号略微放开，让它更像"主航向"而不是一排小按钮。
++				     胶囊宽度与选项卡宽度必须同步：行内 style 用的是同一套
++				     calc((100% - 6px) / n) 与 translateX(idx*100%)，padding 不变即对齐。 */
+ 				  .we-tabs {
+ 				    position: relative; display: flex; flex: 0 0 auto;
+ 				    padding: 3px; border-radius: 10px;
+@@ -2557,6 +2656,14 @@ window.__ModuleLoader__.load({
+ 				    color: var(--we-ink-2, rgba(128, 128, 128, 0.9));
+ 				    transition: color var(--we-dur-fast, 120ms) var(--we-ease, ease);
+ 				  }
++				  /* 【布局优化 2026-11-07】设置页页签从 6 → 4 枚，每枚变宽 ⇒ 高度/字号放开一档。
++				     ⚠️ 必须用 .we-picker 前缀限定：右侧栏快捷面板（.we-qp__tabs /
++				     .we-qp__viewtabs）复用同一批 .we-tabs__* 类，但那两处是窄栏、
++				     原尺寸才合适 —— 不加前缀会把侧栏顶高，属回归。
++				     字号 13px / 高度 32px 与该面板里 .we-picker__ctl 的 32px 触达高度同档。 */
++				  .we-picker .we-tabs__tab {
++				    height: 32px; padding: 0 6px; font-size: 13px;
++				  }
+ 				  .we-tabs__tab:hover { color: var(--we-ink, inherit); }
+ 				  .we-tabs__tab--active { color: var(--we-ink, inherit); font-weight: 600; }
+ 				  /* 页签面板：淡入 + 轻微上移落定（reduced-motion 由全局媒体查询静止）。 */
+@@ -2610,6 +2717,68 @@ window.__ModuleLoader__.load({
+ 				    overflow-wrap: anywhere; max-width: 100%;
+ 				  }
+ 				  .we-picker__ctl-side { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
++
++				  /* ══ 【外观页按钮布局修复 2026-11-07】═══════════════════════════════════════
++				     用户反馈：外观页一部分按钮的**文字紧贴按钮边界**（左侧栏圆角的
++				     「跟随原生 / 小 6px / 中 12px / 大 20px」、四角开关的「左上角 圆角」等）。
++
++				     根因（不是"没调好"，是两个类打架）：
++				       · .we-picker__btn 给了 padding: 0 12px；
++				       · .we-picker__rate 给了 padding: 0，而它在**同一张样式表里排在后面**、
++				         特异度相同（都是单类） ⇒ 后者胜出，左右内边距被抹成 0。
++				     而「圆角 / 四角 / 实时帧率 / 启动等待」这些按钮都是
++				     class="we-picker__btn we-picker__rate" **同时带两个类** ⇒ 拿到 padding: 0，
++				     文字直接顶到 1px 描边上。纯 __rate（无 __btn）在本仓**不存在**，
++				     所以那条 padding: 0 从来不是有意设计，是遗漏。
++
++				     修法分两层（都必要）：
++				       ① 上面 .we-picker__rate 本体已从 padding: 0 改成 0 8px（先给一个基础气口，
++				          与 __btn 的 12px 相比更紧凑 —— 分段控件通常并排多枚，横向预算紧）；
++				       ② 下面这组规则给「并排多枚」的场景钉到 0 10px 并把最小格宽抬到 76px，
++				          让中文标签（如「大 20px」）有足够空间，不会顶到描边上。
++				     ⚠️ 只碰内边距与最小宽，不动高度/颜色/圆角 —— 那些是既有设计，改了会连锁。
++				     ⚠️ 本块在模板字符串里：正文**不得出现反引号**。 */
++
++				  /* 分段控件里的每一枚：左右留出气口 + 一个能容纳标签的最小格宽。
++				     10px × 2 + 1px 描边 × 2 = 22px 的净占用。
++				     min-width 取 76px 而不是更小的值：外观页「侧边栏圆角」那四档标签是
++				     「跟随原生 / 小 6px / 中 12px / 大 20px」，其中「大 20px」在 0.78em
++				     字号下约需 70px 内容宽 ⇒ 76 - 22 = 54px 偏紧，所以配合
++				     white-space: nowrap 让文字不换行（宁可按钮变宽，也不把文字压到描边上）。 */
++				  .we-picker__seg > .we-picker__rate {
++				    padding: 0 10px;
++				    min-width: 76px;
++				    white-space: nowrap;
++				  }
++				  /* 纯按钮（.we-picker__btn 不带 __rate）保持原设计的内边距，
++				     但如果**同时**带 __rate，用更紧凑的一档（上一行已覆盖）。
++				     这条只是把"纯按钮"那一档重新声明回来，防止将来有人把
++				     .we-picker__rate 挪到 .we-picker__btn 之后又把它抹平。 */
++				  .we-picker__btn:not(.we-picker__rate) {
++				    padding: 0 12px;
++				  }
++
++				  /* 行内「标签+说明」与「按钮组」并排时的挤压保护：
++				     说明文字原本可无限压缩，按钮组却按内容撑开 —— 窄栏里结果就是
++				     说明被压成竖条、按钮组顶出面板。给文本列一个下限、给按钮组允许收缩。 */
++				  .we-picker__ctl--wrap > .we-picker__ctl-text {
++				    flex: 1 1 auto;
++				    min-width: 140px;
++				  }
++				  .we-picker__ctl--wrap > .we-picker__seg {
++				    flex: 0 1 auto;
++				    min-width: 0;
++				  }
++
++				  /* 极窄容器（设置窗被拖到很窄 / 侧栏档）：按钮组整行换到下一行，
++				     而不是继续压缩格宽把文字挤到描边上。 */
++				  @media (max-width: 480px) {
++				    .we-picker__ctl--wrap > .we-picker__seg {
++				      flex: 1 0 100%;
++				      margin-left: 0;
++				    }
++				    .we-picker__seg > .we-picker__rate { min-width: 0; }
++				  }
+ 				  .we-picker__swatches { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+ 
+ 				`;
+@@ -3392,7 +3561,9 @@ window.__ModuleLoader__.load({
+ 				  .we-picker__rate {
+ 				    /* basis 用 auto 而不是 0（#253）：flex-basis:0 的项在换行计算里按 0 宽参与，11 个键
+ 				       会全挤在同一行、各自压到几像素。auto 让换行先看见每键的内容宽，再由父级分配剩余。 */
+-				    flex: 1 1 auto; min-width: 56px; height: var(--we-ui-h, 30px); padding: 0; text-align: center; font-size: 0.78em;
++				    /* 【布局优化 2026-11-07】padding 从 0 改成左右 8px（详见文件末尾的同名覆盖规则
++				       与下方注释）—— 这里同步改，避免"声明与后置覆盖"两处口径不一致。 */
++				    flex: 1 1 auto; min-width: 56px; height: var(--we-ui-h, 30px); padding: 0 8px; text-align: center; font-size: 0.78em;
+ 				    border: 1px solid var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.35));
+ 				    border-radius: var(--we-ui-radius, 8px); background: transparent; cursor: pointer;
+ 				    color: var(--we-ink-2, rgba(128, 128, 128, 0.9));
+@@ -13544,51 +13715,30 @@ window.__ModuleLoader__.load({
+ 
+ 				  function renderMascotTab(ctx) {
+ 				    const { onRopeScaleChange, onRopeVisibilityChange, onMascotFormConfirm, onDisarmConfirm, sel, paneWidth } = ctx;
+-				    // ── D3 可见面 gate（ADR-0013 D3①/D3③）：该组件行关掉 ⇒ **整块不渲染**（返回 null，
+-				    // 界面不显示；配置项由调用方按同一判据隐藏）。判据：test/verify-component-visibility.mjs
+-				    // 的"声明落点必须被 gate"双向对账。唯一实现在 src/client.js 的 weComponentVisible。
+-				    if (!weComponentVisibleOf(ctx.sel && ctx.sel.inventory && ctx.sel.inventory.components, 'mascot-avatar')) return null;
+-				    // 主页面那只吉祥物**当前用的立绘**（自定义优先 / 否则内置形态）—— 与 RopeDock 共用
+-				    // 同一条解析（`ropeArtOf`）：设置页看到的盒与主页面那只的盒必须是同一个数。
++				    // ── 【精简改动 2026-11-07】吉祥物已按用户要求彻底移除 ⇒ 本块确定性返回 null。
++				    //
++				    // 为什么不用原来那条 gate：`weComponentVisible` 读的是 `/inventory` 的 `components`，
++				    // 而那份探针由 host-boot.js 的三本**进程级账本**（loaded/started/failed）产出 ——
++				    // 把一行 disable 只让它的 fiber 卸载并撤掉路由，**不会**从 startedComponents 里删名。
++				    // 于是"同一进程内先启用、后停用"时探针仍报 started，前端就会继续画吉祥物，
++				    // 而 /mascot 与 /avatar 已经 404 ⇒ 全面破图（已实测复现）。
++				    // 硬移除后与探针状态彻底解耦，行为确定。
++				    //
++				    // 恢复吉祥物：删掉下面这一行 return null，并把 `renderMascotTab` 的原始实现
++				    // （见 backup 的 client.js，或 `git diff`）还原；同时删掉 profile patch 里
++				    // `wallpaper-engine-mascot-avatar` 的 disabled 行。
++				    return null;
++				  }
++
++				  /* 原 `renderMascotTab` 实现（仅留档，未启用）：
+ 				    const previewArt = ropeArtOf(sel);
+ 				    const customArt = previewArt.custom;
+-				    // 自定义立绘卡片的舞台盒 = 内置卡里最高的那张（Deepseek_Pro 64×96）的盒 ——
+-				    // "同样的卡片大小和样式"（用户口径）在这条链上就落到这两个数上。
+ 				    const boxW = 64, boxH = 96;
+-				    // 卡面舞台：把当前立绘等比缩进 64×96（与最高的内置卡「Deepseek_Pro」同一个盒）——
+-				    // 保持宽高比，直接夹住某一边会把长竖图压成方的，看到的就不是那只吉祥物的形状了。
+ 				    const previewFit = Math.min(1, boxW / previewArt.w, boxH / previewArt.h);
+-				    // 没导入时占位就是整块舞台（虚线框 + 一个加号），导入后图片按自己的比例缩进它。
+ 				    const previewW = customArt ? Math.max(1, Math.round(previewArt.w * previewFit)) : boxW;
+ 				    const previewH = customArt ? Math.max(1, Math.round(previewArt.h * previewFit)) : boxH;
+-				    return React.createElement(React.Fragment, null,
+-				      // ── 吉祥物：形态卡片固定基础尺寸（「吉祥物大小」只作用于主页面），开关总控 ──
+-				      React.createElement("div", { className: "we-picker__section" },
+-				        React.createElement("div", { className: "we-picker__section-head" },
+-				          React.createElement("span", { className: "we-picker__section-label" }, weT("聊天吉祥物")),
+-				        ),
+-				        switchRow(weT("显示吉祥物"), sel.ropeShown !== false, onRopeVisibilityChange, {
+-				          key: "rope-shown",
+-				          hint: weT("关闭后隐藏吉祥物与壁纸仓库抽屉"),
+-				          tooltip: weT("关闭后隐藏吉祥物与壁纸仓库抽屉；可随时在本页重新开启"),
+-				        }),
+-				        // ── 自定义立绘（用户口径：可导入，已导入时下一次导入覆盖上一次）──────────
+-				        // 它是**转盘（3D 环）上的最后一项**（用户口径：与内置立绘同样的卡片大小和样式）——
+-				        // 点它导入 / 替换（再导入即覆盖），正在用时是 `--active` 那一项；内置项**不因**自定义
+-				        // 生效而禁用（并入 #180 之后：点内置项 = 两步确认换回出厂自带，见
+-				        // `onMascotFormConfirm`），只有导入进行中才禁用（`disabled: mascotBusy`）。
+-				        // 卡面尺寸口径与内置项一致（固定，不随「吉祥物大小」缩放）：图片按自己的宽高比
+-				        // contain 进 64×96 的小舞台（那是最高的内置项「Deepseek_Pro」的盒）。清除入口排在最后。
+-				        renderMascotFormCards(sel, previewArt, previewW, previewH, onRopeFormChange, onMascotPick, onMascotClear, onMascotFormConfirm, onDisarmConfirm, paneWidth),
+-				        sel.mascotError
+-				          && React.createElement("div", { className: "we-picker__hint we-avatar-error", key: "rope-custom-err" }, sel.mascotError),
+-				        // 吉祥物大小的**显示刻度**与存储刻度不同（ropeScale = 倍率，滑杆值本身也是倍率）：
+-				        // 右侧是 `Math.round(scale*100)+"%"` 的预格式化整串 ⇒ 保持只读回显（#255⑤ 明确保留）。
+-				        SliderRow(weT("吉祥物大小"), ROPE_SCALE_MIN, ROPE_SCALE_MAX, ROPE_SCALE_STEP,
+-				          sel.ropeScale, onRopeScaleChange, Math.round(sel.ropeScale * 100) + "%", "rope-scale"),
+-				      ),
+-				    );
+-				  }
++				    return React.createElement(React.Fragment, null, …立绘转盘 / 尺寸滑杆 / 导入清除…);
++				  */
+ 
+ 
+ 				  // 这一层保留"空态提前返回 + 唯一的节外壳"，把**节里的内容**按块分给子渲染器；
+@@ -13642,227 +13792,22 @@ window.__ModuleLoader__.load({
+ 				      renderAdvancedDiagSection(ctx),
+ 				    );
+ 				  }
+-				  // ── 「扩展」页签：后续功能的**模块容器** ─────────────────────────────────────
+-				  // 这一页刻意只放一张**注册表**：加一个功能 = 往 EXTENSION_MODULES 里加一项，页签本身
+-				  // 不用改（"接下来的功能追加都以模块形式放在该 tab 下"是用户的明确口径，见 CHANGELOG）。
+-				  // 注册表为空时页签照旧在、只画空态 —— 页签栏是稳定的，用户不会因为"现在还没有模块"
+-				  // 就找不到这一页的入口。
+-				  //
+-				  // 每一项的**描述符住在它自己的 src/<语义名>.js 里**（渲染器不膨胀）。取用一律走下面这个
+-				  // **惰性**函数：顶层直接写 `const EXTENSION_MODULES = [SYMBOL]` 会踩两个坑 ——
+-				  //   ① 内联后 prelude 求值期就要读兄弟模块的常量，模块顺序成了隐式契约；
+-				  //   ② test/verify-scene-live.mjs 是**单独 import 本文件**、再喂 `globalThis` 的，
+-				  //      顶层一引用别处的符号就当场 ReferenceError。
+-				  // 写成函数后两个坑都没了：求值发生在"画这一页"的时候，那时兄弟模块早就内联好了。
+-				  //
+-				  // 模块形状（给未来加功能的自己）：
+-				  //   { id, title, desc?, render? }
+-				  //   · `id`    React key，稳定且唯一；
+-				  //   · `title` / `desc` 取到的就是**译文**（描述符里写成 getter，见下）。写法上有个硬约束：
+-				  //     **不能直接写成 `title: "…"`** —— 那在 test/verify-i18n.mjs 的判据 ① 里是
+-				  //     "没进 weT(...) 的裸中文"；也不能写成顶层 `title: weT("…")`，那会在内联后的
+-				  //     prelude 求值期撞 TDZ。既有写法是**getter**：
+-				  //       get title() { return weT("点击效果与拖尾效果"); }
+-				  //     这样 `weT(...)` 就落在字面量的最内层调用帧上，且取译文发生在渲染时（照抄
+-				  //     packages/fx/src/ext-fx.js 的 FX_EXTENSION_MODULE 即可）—— 因此**本文件不再套一层
+-				  //     weT**（套了就成了拿译文再查一次词表）。
+-				  //   · `render(ctx)` 可选：给了就在这个模块的位置画它自己的控件；没给就只显示
+-				  //     title + desc —— "功能还没做完"的模块可以先上架占位。
+-				  //   · 模块**不得**自己写设置 / 发通知 / 持有状态：本文件是渲染器（契约见文件头），
+-				  //     要动状态就把动作做成 src/client.js 的具名处理器、经 ctx 传进来。
+-				  // 现有三项 —— **本文件不再枚举它们**（P-A 起）：
+-				  //   一号 = 自定义会话头像（src/ext-avatar.js + src/avatar-layer.js，会话界面上的 DOM 补丁），
+-				  //          **留在主包**，由 src/client.js 在模块作用域自登记；
+-				  //   二号 = 点击效果与拖尾效果（packages/fx）、三号 = 3D 效果（packages/parallax）**各自
+-				  //          是一个独立包** —— 三份 bundle 的求值顺序不保证，同一个工厂作用域里再也放不下
+-				  //          一份"按数组顺序排好的清单"，于是"谁登记了什么"落在一张共享注册表上
+-				  //          （src/extension-registry.js；跨包通道见 ADR-0014 S5.1 / S5.4）。
+-				  // ⚠️ **顺序即屏上顺序**：跨包顺序**不能**靠数组序（bundle 求值顺序不是契约），改由描述符的
+-				  //    `order` 声明（avatar=1 / fx=2 / parallax=3），排序 = (order, 注册序)。
+-				  //    加第四项 = 在它自己的包里调 `weRegisterExtensionModule(id, descriptor)`，本文件零改动。
+-				  // 注册表为空时页签照旧在、只画下面那个空态（形状见 :230-252 的注释）。
+-				  function extensionModules() {
+-				    return weExtensionModules();
+-				  }
+-
+-				  // 这一页自己不读 ctx 的任何字段：整包（sel + 具名 on* 处理器）转交给各模块的 render。
+-				  // ⚠️ 判据口径：`const { … } = ctx;` 必须是函数体的**第一条语句**（前面连注释行都不许有），
+-				  // 所以说明文字只能写在函数外面 —— 见 test/verify-scene-live.mjs 的『每个页签首行都从 ctx 解构』。
+-				  function renderExtensionsTab(ctx) {
+-				    const { onResetModule } = ctx;
+-				    // ── D3 可见面 gate（ADR-0013 D3①/D3③）：该组件行关掉 ⇒ **整块不渲染**（返回 null，
+-				    // 界面不显示；配置项由调用方按同一判据隐藏）。判据：test/verify-component-visibility.mjs
+-				    // 的"声明落点必须被 gate"双向对账。唯一实现在 src/client.js 的 weComponentVisible。
+-				    if (!weComponentVisibleOf(ctx.sel && ctx.sel.inventory && ctx.sel.inventory.components, 'mascot-avatar')) return null;
+-				    const modules = extensionModules();
+-				    return React.createElement(React.Fragment, null,
+-				      React.createElement("div", { className: "we-picker__section" },
+-				        React.createElement("div", { className: "we-picker__section-head" },
+-				          React.createElement("span", { className: "we-picker__section-label" }, weT("扩展模块")),
+-				        ),
+-				        React.createElement("div", { className: "we-ext" },
+-				          modules.length === 0
+-				            ? React.createElement("div", { className: "we-picker__empty" },
+-				                React.createElement("span", { className: "we-picker__empty-title" },
+-				                  weT("还没有可用的扩展模块")),
+-				                React.createElement("span", { className: "we-picker__hint" },
+-				                  weT("后续新增的功能会以模块形式收在这里，每个模块自带它的控件")),
+-				              )
+-				            : modules.map((mod) => React.createElement("div", {
+-				                key: mod.id, className: "we-ext__module",
+-				              },
+-				                React.createElement("div", { className: "we-ext__module-head" },
+-				                  React.createElement("span", { className: "we-ext__module-title" }, mod.title),
+-				                  moduleResetButton(mod.resetGroup, onResetModule),
+-				                ),
+-				                mod.desc ? React.createElement("span", { className: "we-picker__hint" }, mod.desc) : null,
+-				                mod.render ? mod.render(ctx) : null,
+-				              )),
+-				        ),
+-				      ),
+-				    );
+-				  }
++				  // ── 【精简改动 2026-11-07】「扩展」页签已整页移除（用户要求）。
++				  // 被删掉的三样：① 本节注释块；② `extensionModules()` 注册表访问器；
++				  // ③ `renderExtensionsTab()` 渲染器。它们的四张卡来源行全部停用：
++				  //   自定义会话头像（mascot-avatar，已停）、点击拖尾（fx，已停）、
++				  //   3D 效果（parallax，已停）、桌宠联动（pet-link，已停）⇒ 注册表必然为空。
++				  // 保留：`weExtensionModules()` / `weRegisterExtensionModule()` 注册表本体
++				  //   （src/extension-registry.js，仍在作用域里且被子包桥接使用），只是本文件
++				  //   不再有页签去枚举它。恢复页签时把这一段和 PICKER_TABS 那一行一起加回来。
+ 
+-				  // ── 「关于」页签：项目简介 / 仓库与 Star / 交流群二维码 / 贡献者致谢（压尾）──────
+-				  // 内容全是静态文案 + 两张内联二维码（数据在 src/about-assets.js，构建期随 prelude
+-				  // 内联）；**唯一的外部能力**是 `ctx.onReopenNotice`（「重新查看更新公告」按钮）。
+-				  // 它不是"读面板状态"：状态写入与 emit 都发生在 client.js 那一侧（回调体内），本渲染器
+-				  // 只读模块级真值 + 调一个交进来的回调 —— 这正是 test/verify-about.mjs 那条
+-				  // "渲染器只读模块级状态（不自己发请求 / 不写设置 / 不发通知）"允许的形状。
+-				  // 契约是**逐页签**的 —— verify-scene-live 要求每个 render*Tab 首行从 ctx 解构
+-				  //（"要什么"写在签名处），所以这里显式解构出那一个回调。
+-				  // 四段的**顺序**是用户的明确口径（致谢压尾），判据按首次出现下标比大小钉住。
+-				  function renderAboutTab(ctx) {
+-				    const { onReopenNotice } = ctx;
+-				    // ── D3 可见面 gate（ADR-0013 D3①/D3③）：该组件行关掉 ⇒ **整块不渲染**（返回 null，
+-				    // 界面不显示；配置项由调用方按同一判据隐藏）。判据：test/verify-component-visibility.mjs
+-				    // 的"声明落点必须被 gate"双向对账。唯一实现在 src/client.js 的 weComponentVisible。
+-				    if (!weComponentVisibleOf(ctx.sel && ctx.sel.inventory && ctx.sel.inventory.components, 'about-notice')) return null;
+-				    // star 数那一行（模块级：值 + 三态文案都在 client.js 的 starCountLabel 里；
+-				    // 这里的"读"与 SliderRow 一类模块级助手同口径 —— 只读，不发请求）。
+-				    const stars = starCountLabel();
+-				    // 两张码的参数表：图（路由 URL）/ 图题 / 替代文本 / 一句话说明。渲染一次 map 两遍，
+-				    // 免得两段几乎一样的 createElement 各自演化（改一处忘一处正是这类页面最容易烂的地方）。
+-				    const qrCards = [
+-				      {
+-				        key: "qq",
+-				        title: weT("🐧 QQ 群 · DSHWE | LLM 讨论群"),
+-				        // 图本体是随包 PNG（lib/about/），这里只给路径 —— apiUrl 补 BASE 前缀。
+-				        src: apiUrl(ABOUT_QR_QQ_PATH),
+-				        alt: weT("QQ 群二维码"),
+-				        hint: weT("手机 QQ 扫码加入 · 群里见 👋"),
+-				      },
+-				      {
+-				        key: "douyin",
+-				        title: weT("🎵 抖音群 · dsh 交流群"),
+-				        src: apiUrl(ABOUT_QR_DOUYIN_PATH),
+-				        alt: weT("抖音群二维码"),
+-				        hint: weT("抖音扫码加入 · 群号 252729465001"),
+-				      },
+-				    ];
+-				    // 贡献者致谢逐条列出（名字 / 做了什么）——「谢谢」要能落到具体的人身上，
+-				    // 一句笼统的"感谢所有贡献者"没有信息量。
+-				    const credits = [
+-				      weT("🧩 oneincase —— 内置 WebWallGL 实时渲染引擎与 media-bridge 媒体中间件的作者：场景 / 网页壁纸的实时渲染，以及 Windows / macOS / Linux 三平台的原生媒体链路，都建立在它们之上"),
+-				      weT("🛠️ YV3507 —— 提交量最大的贡献者：从早期场景渲染器起步，到静态帧系列修复、液态玻璃令牌体系、实时帧链路与多轮大型重构，几乎每个里程碑都有他"),
+-				      weT("🎨 yuxilao —— scene-gl 的 Linux 实时渲染管线（WebGL2 官方 shader 驱动）、轮换交接与 GPU 帧回填"),
+-				      weT("🍎 Jerry —— 在三平台原生支持落地之前，macOS 侧的适配与贡献路径由他维护"),
+-				      weT("🌟 还有 SiriLee、libiwolve、0-007pro、jujubaoj646-star、xiahou001、wilianyichen、hecoococ、ShamSky88、Rekk0、Y1X1n 等贡献者，以及所有通过 issue 反馈与 PR 参与改进的朋友 —— 谢谢你们！"),
+-				    ];
+-				    return React.createElement(React.Fragment, null,
+-				      // ── ① 项目简介 ──
+-				      React.createElement("div", { className: "we-picker__section" },
+-				        React.createElement("div", { className: "we-picker__section-head" },
+-				          React.createElement("span", { className: "we-picker__section-label" }, weT("📖 项目简介")),
+-				        ),
+-				        React.createElement("div", { className: "we-about__lead" },
+-				          React.createElement("div", { className: "we-about__lead-title" }, weT("🖼️ 壁纸引擎 · 让 DSH 的背后动起来")),
+-				          React.createElement("p", { className: "we-about__p" },
+-				            weT("把 Wallpaper Engine 的壁纸搬到 DSH 界面后面：视频直接播放，场景（Scene）与网页（Web）壁纸由内置的 WebWallGL 引擎实时渲染，再配上一整套液态玻璃界面改造 —— 你桌面上那张会动的画，现在就在对话背后放着。🎬✨")),
+-				          React.createElement("p", { className: "we-about__p" },
+-				            weT("壁纸全部来自你自己的机器（本机库 / WE 工程目录 / 手动上传），插件不联网也能用，更不会把它们传到任何地方。🔒")),
+-				        ),
+-				      ),
+-				      // ── ② 仓库与 Star ──
+-				      React.createElement("div", { className: "we-picker__section" },
+-				        React.createElement("div", { className: "we-picker__section-head" },
+-				          React.createElement("span", { className: "we-picker__section-label" }, weT("⭐ 开源与支持")),
+-				        ),
+-				        React.createElement("p", { className: "we-about__p" },
+-				          weT("项目以 MIT 协议开源、完全免费。如果它让你的 DSH 好看了一点点，去仓库点一颗 ⭐ 就是最直接的鼓励～")),
+-				        React.createElement("div", { className: "we-about__star-row" },
+-				          React.createElement("a", {
+-				            className: "we-picker__btn we-picker__btn--primary we-about__star",
+-				            href: ABOUT_REPO_URL,
+-				            target: "_blank",
+-				            rel: "noopener noreferrer",
+-				            title: weT("在浏览器里打开项目仓库"),
+-				          }, weT("⭐ 去 GitHub 点亮 Star")),
+-				          // 实时 star 数：宿主代取（带缓存，见 packages/about-notice/lib/routes/github-stars.js）。
+-				          // 取不到时**整行不消失**、改说"暂时取不到" —— 数字是点缀，按钮才是主操作。
+-				          stars
+-				            ? React.createElement("span", {
+-				                className: "we-about__stars",
+-				                title: weT("来自 GitHub API 的实时数据（带缓存；拉不到时显示上一次取到的值）"),
+-				              }, stars)
+-				            : null,
+-				        ),
+-				        React.createElement("div", { className: "we-about__url-row" },
+-				          React.createElement("span", { className: "we-picker__hint" }, weT("🔗 仓库地址（按钮打不开时可手动复制）：")),
+-				          // 可选中、可整段复制的裸地址：桌面壳里外链能否唤起浏览器不由插件说了算，
+-				          // 这条是给"点了没反应"的场景留的兜底（同字体集导出的"普通链接"口径）。
+-				          React.createElement("code", { className: "we-about__url" }, ABOUT_REPO_URL),
+-				        ),
+-				        // 「重新查看本版更新公告」：公告的哨兵 `noticeSeen` 让它**一版只弹一次** ⇒ 不给一条
+-				        // 重看路径的话，用户"想再看这版改了什么"就只能去改设置文件。
+-				        // ⚠️ 只调回调（`ctx.onReopenNotice`）：状态写入与 emit 都在 client.js 那一侧 ——
+-				        // 本渲染器因此保持"只读模块级状态"（判据见文件头那段说明）。
+-				        // 与上面那枚 Star 按钮**同放一节**是有意的：它们是同一件事的两个面（公告配图下那行
+-				        // 也是同一个求星入口，见 src/client.js 的 UpdateNotice）。
+-				        React.createElement("button", {
+-				          className: "we-picker__btn we-about__reopen", type: "button",
+-				          onClick: () => { if (typeof onReopenNotice === "function") onReopenNotice(); },
+-				          title: weT("再弹一次本版更新公告（含配图下方的求星入口）"),
+-				        }, weT("重新查看本版更新公告")),
+-				        React.createElement("p", { className: "we-about__p" },
+-				          weT("想要新功能、遇到问题，或者想看看接下来要做什么，都欢迎来仓库提 Issue / PR —— 一起把它做得更好 🧰")),
+-				      ),
+-				      // ── ③ 交流群（两张二维码）──
+-				      React.createElement("div", { className: "we-picker__section" },
+-				        React.createElement("div", { className: "we-picker__section-head" },
+-				          React.createElement("span", { className: "we-picker__section-label" }, weT("💬 加入交流群")),
+-				        ),
+-				        React.createElement("p", { className: "we-about__p" },
+-				          weT("卡住了、想吐槽、或者想第一时间拿到新版本，都欢迎来群里找我们 👋")),
+-				        React.createElement("div", { className: "we-about__qr-row" },
+-				          qrCards.map((c) => React.createElement("figure", { key: c.key, className: "we-about__qr" },
+-				            React.createElement("figcaption", { className: "we-about__qr-title" }, c.title),
+-				            React.createElement("img", {
+-				              className: "we-about__qr-img",
+-				              src: c.src,
+-				              alt: c.alt,
+-				              draggable: false,
+-				            }),
+-				            React.createElement("figcaption", { className: "we-about__qr-hint" }, c.hint),
+-				          )),
+-				        ),
+-				      ),
+-				      // ── ④ 贡献者致谢（**压尾**：用户口径——先讲清"这是什么、去哪支持、怎么找我们"，
+-				      //    最后再把功劳簿摆出来。💌 那句收尾也并进这一段，页面结束在"谢谢"上。）──
+-				      React.createElement("div", { className: "we-picker__section" },
+-				        React.createElement("div", { className: "we-picker__section-head" },
+-				          React.createElement("span", { className: "we-picker__section-label" }, weT("🙏 贡献者致谢")),
+-				        ),
+-				        React.createElement("p", { className: "we-about__p" }, weT("这个插件是许多人一起做出来的成果，谢谢他们：❤️")),
+-				        React.createElement("ul", { className: "we-about__credits" },
+-				          credits.map((line, i) => React.createElement("li", { key: "credit-" + i, className: "we-about__credit" }, line)),
+-				        ),
+-				        React.createElement("p", { className: "we-about__p" }, weT("也谢谢上游 Wallpaper Engine 生态与 DSH 官方插件的作者们 —— 站在你们的肩膀上。🙇")),
+-				        React.createElement("p", { className: "we-about__p we-about__foot" },
+-				          weT("💌 感谢每一位使用者 —— 换上你喜欢的那张壁纸，这个插件就没白写。")),
+-				      ),
+-				    );
+-				  }
++				  // ── 【精简改动 2026-11-07】「关于」页签已整页移除（用户要求）。
++				  // 被删掉的是 `renderAboutTab()` 整个函数（含其上方 9 行说明注释，共 140 行），
++				  // 它渲染的是：项目简介 / GitHub Star 数 / QQ 与抖音群二维码 / 贡献者致谢 ——
++				  // 全是静态资讯，不含任何设置项。数据源 `about-notice` 组件行已停用，
++				  // 所以它的两条路由（/star-count、/about-qr）也已撤销。
++				  // 保留：`loadStarCount()` / `starCountLabel()` / `ABOUT_QR_*` 常量（无调用方，
++				  //   不产生请求）；恢复页签时把 PICKER_TABS 那一行与该函数一并加回来即可。
+ 
+ 
+ 				  // ── 页签级重置（issue #192 用户口径：「每个选项卡后面加重置，重置指定选项卡」）──────────
+@@ -24354,13 +24299,31 @@ window.__ModuleLoader__.load({
+ 		  { id: "appearance", get label() { return weT("外观"); } },
+ 		  { id: "playback", get label() { return weT("播放"); } },
+ 		  { id: "system", get label() { return weT("系统"); } },
+-		  { id: "extensions", get label() { return weT("扩展"); } },
+-		  { id: "about", get label() { return weT("关于"); } },
++		  // 【精简改动 2026-11-07】「扩展」页签已整页移除（用户要求）。原第五项：
++		  //   { id: "extensions", get label() { return weT("扩展"); } },
++		  // 该页原有三张卡：自定义会话头像（随 mascot-avatar 行停用而消失）、
++		  // 点击效果与拖尾（fx 行）、3D 效果（parallax 行）、桌宠联动（pet-link 行）。
++		  // 四个来源行全部停用 ⇒ 页签里已无任何模块可画，整页一并撤下。
++		  // 恢复：把上面那行加回来，并取消 profile patch 里对应行的 disabled。
++		  //
++		  // 【精简改动 2026-11-07】「关于」页签同样整页移除（用户要求）。原第六项：
++		  //   { id: "about", get label() { return weT("关于"); } },
++		  // 该页是纯资讯页（简介 / Star 数 / 两个群二维码 / 致谢），不含任何设置，
++		  // 且其数据源 about-notice 组件行已停用。
++		  // 于是设置页最终为**四页签**：壁纸库 / 外观 / 播放 / 系统。
+ 		];
+ 		// 旧页签 id → 新 id 的迁移（「字体」并入「外观」）：别把老用户甩回第一页。
+ 		const PICKER_TAB_LEGACY = {
+ 		  wallpaper: "library", font: "appearance", effects: "playback",
+ 		  audio: "playback", mascot: "system", advanced: "system",
++		  // 【精简改动 2026-11-07】「扩展」页签已移除：停在那一页的老存档（localStorage
++		  // 里存着 "extensions"）必须有个去处，否则 readSavedPickerTab 会判它不在
++		  // PICKER_TABS 里而回落 library —— 迁移到 system 更贴近原意（扩展页的三个
++		  // 模块指标都在「系统 / 外观」一侧，且 system 恒在）。
++		  extensions: "system",
++		  // 【精简改动 2026-11-07】「关于」页签已移除：老存档里的 "about" 没有对应内容了
++		  // ⇒ 迁移到 system（四页签里最"信息性"的一页），避免突兀地跳回壁纸库。
++		  about: "system",
+ 		};
+ 		// ── 可见页签表（ADR-0013 D3① 的"页签安全" + P-D S5e 的 D-6(b) 收口）──────────
+ 		// 口径：**整页**都归某个子包浏览器半边的页签，只有在那一半真的在台上时才进导航。为什么必须
+@@ -26814,14 +26777,16 @@ window.__ModuleLoader__.load({
+ 		    // 下钻的库视图也随页签一起退出：否则切走再切回来，看到的还是库而不是该页内容。
+ 		    if (selection.pickerOpen) setTransient("pickerOpen", false);
+ 		    setTransient("pickerDraft", false);
+-		    // 「关于」页才去问 star 数（TTL 内是空操作）：别的页签一次网络都不发。
+-		    if (id === "about") loadStarCount(false);
++		    // 【精简改动 2026-11-07】「关于」页签已移除 ⇒ 不再有"切到关于页去问 star 数"这一支。
++		    //   原：if (id === "about") loadStarCount(false);
++		    //   连带效果：`loadStarCount` / `starCountLabel` 现在没有调用方了（函数本体保留，
++		    //   便于随时恢复页签；它本身不发请求，只有被调用才会走网）。
+ 		    setActiveTab(id);
+ 		    try { localStorage.setItem(PICKER_TAB_KEY, id); } catch { /* ignore */ }
+ 		  };
+-		  // 停在「关于」页刷新页面这条路径不走 switchTab（activeTab 直接从 localStorage 读出来），
+-		  // 用一次订阅式 effect 补上；TTL 同日历口径，重复触发是空操作。
+-		  React.useEffect(() => { if (activeTab === "about") loadStarCount(false); }, [activeTab]);
++		  // 【精简改动 2026-11-07】「关于」页签移除后，这条"刷新页面后补问一次 star 数"的
++		  // effect 也一并撤销（原来只对 activeTab === "about" 生效，现在恒为假）。
++		  // 原：React.useEffect(() => { if (activeTab === "about") loadStarCount(false); }, [activeTab]);
+ 
+ 		  // 页签安全（ADR-0013 D3① + D-6(b)）：可见页签表变了（面板节注册表变化 / 组件行状态随
+ 		  // inventory 轮询回到本地）而当前页签不在表里 ⇒ 回落到第一个可见页签，自愈、不用用户自己点走。
+@@ -26987,49 +26952,23 @@ window.__ModuleLoader__.load({
+ 		  // 渲染器只拿值 + 回调（同模态框那条契约）。判定就一句：
+ 		  // token 变了且不在加载中才重拉。
+ 		  // ── 页签面板内容（函数声明提升，renderActiveTab 在 return 里先调用）──────
+-		  // 六页签 = 三个单渲染器（「外观」「扩展」「关于」）+ 两个合并渲染器（「播放」= 效果 + 声音，
+-		  // 「系统」= 吉祥物 + 高级）+ 壁纸库。「关于」除组件行状态外不取任何 ctx 字段（其余是静态
+-		  // 内容）；「扩展」只取 `onResetModule` 与组件行状态，其余整包转交给注册表里的模块（每个
+-		  // 模块的控件由它自己的渲染器画）。
++		  // 【精简改动 2026-11-07】原五页签（壁纸库 / 外观 / 播放 / 系统 / 扩展 / 关于）现为
++		  // **五页签**（壁纸库 / 外观 / 播放 / 系统 / 关于）——「扩展」整页已移除。
++		  // 随之删除：`extensionCtx()` 整个工厂（它只服务 extensions 分支，其中的
++		  // onFx* / onParallax* / onAvatar* 处理器已无任何消费方）。
++		  // 这些处理器本体仍留在本文件（设置项与预设通道还在读它们），只是不再塞进页签 ctx。
+ 		  // 组件行状态面（ADR-0013 D3②）：**经 ctx 传进渲染器**（渲染器不得直接读 selection）；
+ 		  // 判定本身只有一处实现 —— 本文件的 `weComponentVisible(components, name)`。
+-		  // `components` 在本组件体上方读了一次，这里只是把它塞进各渲染器的 ctx。
+-		  const extensionCtx = () => ({
+-		    components,
+-		    sel: selection,
+-		    onFxEnabled, onFxClick, onFxClickStyle, onFxClickSize, onFxClickGlow,
+-		    onFxTrail, onFxTrailStyle, onFxTrailLength, onFxTrailWidth, onFxTrailGlow,
+-		    onFxOpacity, onFxBlend, onFxColorMode, onFxColor,
+-		    onParallaxEnabled, onParallaxBg, onParallaxMascot, onParallaxUi, onParallaxSmooth,
+-		    onParallaxPlugin,
+-		    onParallaxUiChatDepth, onParallaxUiComposerDepth, onParallaxUiSidebarDepth, onParallaxUiBubbleDepth,
+-		    onParallaxPluginDepth,
+-		    // 认到的插件槽位（用户口径 m02697-②）：只给**槽键字符串**（画一行一个）。发现逻辑在
+-		    // packages/parallax/src/parallax-layer.js（与层自己每帧扫的是同一份名单），这里只是转交；
+-		    // P-A 起问的是**注册表**（`weDiscoveredGroupsOf`）—— 那一层住在自己的包里，本 bundle 的
+-		    // 作用域里既没有它的函数名也不该有（没有这层 / 没声明就是空数组，不是 undefined）。
+-		    // **插件前端那一块自己的开关**（用户诉求 m03549）关着时层也不认它们，面板就跟着空 ——
+-		    // 名单与"真的会动"必须同源，否则会出现点了没反应的滑杆。它与「界面元素跟随」互不依赖。
+-		    parallaxPluginSlots: sel.parallaxPlugin === true ? weDiscoveredGroupsOf('parallax').sort() : [],
+-		    onAvatarEnabled, onAvatarSize, onAvatarRadius, onAvatarAiRepeatRows, onAvatarPick, onAvatarClear,
+-		    // 上传裁切（issue #191 问题 1）：几何在这里现算（唯一实现），渲染器只读结果。
+-		    onAvatarCropZoom, onAvatarCropDrag, onAvatarCropWheel, onAvatarCropConfirm, onAvatarCropCancel: closeAvatarCrop,
+-		    avatarCropGeo: avatarCropGeometry(), avatarCropView: AVATAR_CROP_VIEW,
+-		    // 超限拦截（#185 后续）：面板画提示行 + 「自动压缩后导入」按钮，处理器在 client 这一侧。
+-		    onAvatarAutoCompress,
+-		    // 模块级重置（issue #192）：各模块头的 ↺ 把该模块的键整批写回默认值。
+-		    onResetModule,
+-		  });
+ 		  const renderActiveTab = () => {
+-		    if (activeTab === "about") return renderAboutTab({
+-		      components,
+-		      // 「重新查看本版更新公告」的落点：立请求位 + emit 让 `UpdateNotice` 重渲染。
+-		      // 不变量：这两个动作必须留在本文件这一侧 —— `renderAboutTab` 体内不许出现
+-		      // `setSetting(` / 字面 `emit(` / `apiJson|apiFetch(`（判据见 test/verify-about.mjs），
+-		      // 所以那条腿只调这个回调。请求位由 `UpdateNotice.dismiss()` 清。
+-		      onReopenNotice: () => { noticeReopenRequest = true; emit(); },
+-		    });
+-		    if (activeTab === "extensions") return renderExtensionsTab(extensionCtx());
++		    // 【精简改动 2026-11-07】「关于」页签已整页移除 ⇒ 这里不再有 about 分支。
++		    //   原分支：if (activeTab === "about") return renderAboutTab({ components, onReopenNotice: … });
++		    //   activeTab 不可能再是 "about"（PICKER_TABS 里已无该项，老存档由 PICKER_TAB_LEGACY
++		    //   迁移到 "system"），所以保留判断就是死代码。
++		    //   ⚠️ 连带影响：`renderAboutTab` 里那个「重新查看本版更新公告」按钮也一并消失；
++		    //      更新公告本身仍由 `UpdateNotice` 组件正常弹出（它挂在我们保留的 body portal 上），
++		    //      只是不再有"手动再看一次"的入口。
++		    // 【精简改动 2026-11-07】「扩展」页签已整页移除 ⇒ 这里不再有 extensions 分支。
++		    //   原分支：if (activeTab === "extensions") return renderExtensionsTab(extensionCtx());
+ 		    if (activeTab === "appearance") return renderAppearanceTab({
+ 		      setSetting, setTransient,
+ 		      fontSet: fontSetCtx(),
+@@ -28288,8 +28227,15 @@ window.__ModuleLoader__.load({
+ 		//    屏上顺序 = (order, 注册序)：头像固定 order 1，子包各自声明 2 / 3（跨包求值顺序不是契约）。
+ 		//    子包产物可能**在本组件挂载之后**才求值（loader 按需）⇒ 挂载期还要装一个 attacher
+ 		//    让迟到的层立刻补接（见 ctx.effect 里的 weSetLayerAttacher）。
+-		weRegisterExtensionModule("avatar", AVATAR_EXTENSION_MODULE);
+-		weRegisterLayerHooks("avatar", { sync: syncAvatarLayer, dispose: disposeAvatarLayer });
++		// ⚠️ 【精简改动 2026-11-07】吉祥物 / 会话头像已按用户要求彻底移除：
++		//   下面两行（头像扩展模块 + 头像装饰层钩子）**不再注册**。
++		//   · 头像模块住 mascot-avatar 组件行（其 /avatar 路由已随行停用而撤销）⇒
++		//     注册上去只会画一个导入即 404 的破图面板；
++		//   · `syncAvatarLayer` 挂的是消息行 DOM 补丁，同样依赖那两条路由。
++		//   代码本体（AVATAR_EXTENSION_MODULE / syncAvatarLayer / renderAvatarIsland）
++		//   全部保留未删，恢复时把这两行取消注释即可。
++		// weRegisterExtensionModule("avatar", AVATAR_EXTENSION_MODULE);
++		// weRegisterLayerHooks("avatar", { sync: syncAvatarLayer, dispose: disposeAvatarLayer });
+ 
+ 		function apply(ctx) {
+ 		  // 0. i18n：把插件文案接上宿主的 locale 服务（`ctx.get("locale")`，可选服务 + 短轮询 ——
+@@ -28717,8 +28663,14 @@ window.__ModuleLoader__.load({
+ 
+ 		  // 3. Chat-interface rope dock: the draggable pull-cord + glass repo side
+ 		  //    panel, portalled onto <body> under its own React root — independent of
+-		  //    the settings view, floating above the conversation. Feature-detected
+-		  //    (react-dom without createRoot → skip) so minimal host/mocks stay safe.
++		  //    the settings view, floating above the conversation.
++		  //    ⚠️ 【精简改动 2026-11-07】吉祥物已按用户要求彻底移除 ⇒ 这里**不再挂 RopeDock**。
++		  //    但 RopeDock 同时是 `UpdateNotice`（更新公告弹窗）的**唯一挂载点**（见 RopeDock
++		  //    体内 `if (hidden) return <UpdateNotice/>`）—— 直接不挂这个 root 会让更新公告
++		  //    永远弹不出来。所以改成：同一个 portal 只渲染 `UpdateNotice`。
++		  //    RopeDock 组件本体与其依赖（ropeArtOf / ROPE_FORMS / 拖拽逻辑）保留未删：
++		  //    体积可忽略，且删掉会牵动十余处引用；功能上它已无任何挂载点，不会再上屏。
++		  //    想恢复吉祥物：把下面 root.render 换回 React.createElement(RopeDock, null) 即可。
+ 		  if (ctx.effect && typeof document !== "undefined" &&
+ 		      typeof ReactDOM !== "undefined" && typeof ReactDOM.createRoot === "function") {
+ 		    ctx.effect(() => {
+@@ -28730,7 +28682,7 @@ window.__ModuleLoader__.load({
+ 		      }
+ 		      if (!host) return undefined;
+ 		      const root = ReactDOM.createRoot(host);
+-		      root.render(React.createElement(RopeDock, null));
++		      root.render(React.createElement(UpdateNotice, null));
+ 		      return () => {
+ 		        try { root.unmount(); } catch { /* already gone */ }
+ 		        if (host.parentNode) host.parentNode.removeChild(host);
+diff --git a/lib/index.js b/lib/index.js
+index 1c822a6..d1c1877 100644
+--- a/lib/index.js
++++ b/lib/index.js
+@@ -84,7 +84,9 @@ import { registerDiagRoutes } from './routes/diag.js';
+ import { registerGlassPresetsRoutes } from './routes/presets.js';
+ import { registerSettingsRoutes } from './routes/settings.js';
+ import { registerCacheDirRoutes } from './routes/cache-dir.js';
+-import { registerRopeArtRoutes } from './routes/rope-art.js';
++// 【精简改动 2026-11-07】`registerRopeArtRoutes` 的 import 已移除：该路由随吉祥物一起下线
++// （`lib/routes/rope-art.js` 文件仍保留，恢复吉祥物时把下面这行 import 与注册点一起加回）。
++// import { registerRopeArtRoutes } from './routes/rope-art.js';
+ // C8′/C6 出户的组件行（P2-1 / P2-2）：组件入口**静态** import（不是动态）—— `test/verify-reachability.mjs`
+ // 只从 ENTRY 沿 import 边走，动态加载的组件入口会被判定为不可达，棘轮当场变红。
+ // 组件名 → 实现表的登记在 `applyComponent` **函数体内**（P2-1b 起；模块级常量会让门面求值期
+@@ -94,9 +96,14 @@ import { registerRopeArtRoutes } from './routes/rope-art.js';
+ // 实现），**不是**跨包通道 —— 跨包通道只有 `ctx.wallpaperEngineHost`（ADR-0014 S5.1/S5.2）；
+ // 该边随 §12 的发布形态（主包精确依赖子包）成立，开发期由根 `devDependencies` 的
+ // `file:packages/<组件>` 提供。
+-import { applyImpl as applyAboutNoticeImpl } from 'dsh-plugin-wallpaper-engine-about-notice';
+-import { applyImpl as applyMascotAvatarImpl } from 'dsh-plugin-wallpaper-engine-mascot-avatar';
++// 【精简改动 2026-11-07】下面两个组件的静态 import 已移除 —— 它们对应的行
++// （wallpaper-engine-about-notice / wallpaper-engine-mascot-avatar）在本发行版里
++// 已被整块裁掉，对应 npm 包也不再是依赖 ⇒ 保留 import 会在模块求值期直接
++// ERR_MODULE_NOT_FOUND，整包起不来。
++// import { applyImpl as applyAboutNoticeImpl } from 'dsh-plugin-wallpaper-engine-about-notice';
++// import { applyImpl as applyMascotAvatarImpl } from 'dsh-plugin-wallpaper-engine-mascot-avatar';
+ // 第三件组件（媒体桥入包）：路由族、后端实现与 macOS 音频 tap 源码随包走 ⇒ 门面只剩分发点。
++// ⚠️ 这个必须留：media-bridge 承载 /inventory、/media、/preview、/upload 等壁纸本体路由。
+ import { applyImpl as applyMediaBridgeImpl } from 'dsh-plugin-wallpaper-engine-media-bridge';
+ // 组件行**浏览器可见面**的声明单一真源（ADR-0013 D3②）：宿主侧持有"组件名 → 浏览器渲染落点"，
+ // 浏览器侧只持有 gate（`COMPONENT_GATE` 指向的那一个判定函数）；对账在
+@@ -375,12 +382,11 @@ export function apply(ctx) {
+     normalizeUserDir, cacheBaseDir, setCacheDir, armBodyIdleTimeout,
+   });
+ 
+-  // 7c. 拉绳吉祥物立绘（`assets/rope/*.png`，随包发布）→ lib/routes/rope-art.js。
+-  //     2026-10-30 启动性能：这 10 张图从主产物 base64 内联改为按需只读路由，主 bundle
+-  //     少了 2,369,676 字符（约 56%）。文件名白名单 + PNG 校验在族文件里；这里只接线。
+-  registerRopeArtRoutes(webServer, {
+-    disposers, base: BASE, serveFile,
+-  });
++  // 7c. 【精简改动 2026-11-07】拉绳吉祥物立绘路由已移除。
++  //     原为 `registerRopeArtRoutes(...)`，服务 `assets/rope/*.png` 这 10 张立绘。
++  //     吉祥物（RopeDock）已按使用方要求彻底裁掉，RopeDock 不再挂载 ⇒ 这些图
++  //     没有任何消费者，`assets/rope/` 目录（1.74 MB）也一并从本发行版剔除。
++  //     保留 `lib/routes/rope-art.js` 文件本身（恢复吉祥物时重新接线即可）。
+ 
+   // fiber disposer 的语义（先逐个 disposer、再 releaseKernelLease(hostKernel)——内核引用计数
+   // 归零才 `transcodeKit.dispose()`——再 destroy 在途流、清 activeStreams / mediaMap）
+@@ -413,8 +419,11 @@ function componentImpls() {
+   return new Map([
+     // 组件名（patch 行 name 的子路径段）→ 实现。**静态** import 是承重的：动态加载会让组件入口
+     // 在 `test/verify-reachability.mjs` 的 import 图上不可达（ENTRY 只沿 import 边走），棘轮变红。
+-    ['about-notice', applyAboutNoticeImpl],
+-    ['mascot-avatar', applyMascotAvatarImpl],
++    // 【精简改动 2026-11-07】about-notice / mascot-avatar 两项已移除（对应行与包在本版不存在）：
++    //   ['about-notice', applyAboutNoticeImpl],
++    //   ['mascot-avatar', applyMascotAvatarImpl],
++    // ⇒ componentProbe() 的 declared/builtin 面随之只剩 media-bridge，这是**如实**的：
++    //    本版确实只声明这一行组件。
+     ['media-bridge', applyMediaBridgeImpl],
+   ]);
+ }

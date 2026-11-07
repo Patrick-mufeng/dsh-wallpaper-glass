@@ -1,0 +1,24 @@
+# 依赖与安装产物
+node_modules/
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# 运行期与缓存
+*.log
+.cache/
+tmp/
+dist/
+
+# 系统与编辑器
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+
+# 本地覆盖与密钥
+.env
+.env.*
+*.local
