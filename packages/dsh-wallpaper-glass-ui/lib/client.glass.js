@@ -1850,6 +1850,95 @@ window.__ModuleLoader__.load({
 				    backdrop-filter: none !important;
 				  }
 
+				  /* ══ 【外观页 · 玻璃兼容】2026-11-07 ═══════════════════════════════════════
+				     问题：.we-picker__surface-policy 这个 <details> **一条 CSS 规则都没有**
+				     （全仓搜索确认，主包与 glass 包皆无）。
+
+				     后果：它是原生 <details>/<summary>/<label>/<ul> 结构，而 .we-picker
+				     根容器**没有设 font-size** ⇒ 内部那些裸 <span> 与 <summary> 直接吃 UA
+				     默认的 16px，比面板里其它控件（0.74–0.9em）大出一大截，观感突兀。
+
+				     下面把这节补齐：summary 做成可点的折叠头（与节头同字号层级）、
+				     每行沿用 .we-picker__ctl 的行距、说明列表降为小字并去掉项目符号。
+				     ⚠️ 本块在模板字符串里：正文不得出现反引号。
+				     ⚠️ 全部限定在 .we-picker__surface-policy 内，不影响别处的 details。 */
+
+				  .we-picker__surface-policy {
+				    /* 与同一节里的其它行保持同一字距基准（它们都是 em，相对父级）。 */
+				    font-size: 0.9em;
+				    line-height: 1.5;
+				  }
+
+				  /* 折叠头：与节标题同一层级（主墨 + 600），但小一号，避免和「玻璃 UI」
+				     这种真正的节标题打架。去掉浏览器默认的三角标记，自己画一个。 */
+				  .we-picker__surface-policy > summary {
+				    display: flex;
+				    align-items: center;
+				    gap: 8px;
+				    padding: 6px 4px;
+				    font-size: 0.92em;
+				    font-weight: 600;
+				    color: var(--we-ink, inherit);
+				    cursor: pointer;
+				    user-select: none;
+				    border-radius: 6px;
+				    list-style: none;
+				    transition: background-color 120ms ease;
+				  }
+				  .we-picker__surface-policy > summary::-webkit-details-marker { display: none; }
+				  .we-picker__surface-policy > summary::before {
+				    content: "▸";
+				    display: inline-block;
+				    font-size: 0.8em;
+				    color: var(--we-ink-3, rgba(128, 128, 128, 0.75));
+				    transition: transform 150ms ease;
+				  }
+				  .we-picker__surface-policy[open] > summary::before { transform: rotate(90deg); }
+				  .we-picker__surface-policy > summary:hover {
+				    background: var(--dsw-alias-bg-layer-1, rgba(128, 128, 128, 0.06));
+				  }
+				  .we-picker__surface-policy > summary:focus-visible {
+				    outline: 2px solid var(--we-accent, #4f8cff);
+				    outline-offset: 1px;
+				  }
+
+				  /* 每一面一行：标签用次级墨色小一号（它们是"项名"，不该比行标签还大），
+				     右侧下拉沿用面板既有控件尺寸。 */
+				  .we-picker__surface-policy > .we-picker__ctl {
+				    gap: 12px;
+				    min-height: 30px;
+				    padding-left: 4px;
+				  }
+				  .we-picker__surface-policy > .we-picker__ctl > span {
+				    font-size: 0.86em;
+				    color: var(--we-ink-2, rgba(128, 128, 128, 0.9));
+				    overflow: hidden;
+				    text-overflow: ellipsis;
+				    white-space: nowrap;
+				  }
+				  .we-picker__surface-policy .we-picker__select {
+				    height: var(--we-ui-h, 30px);
+				    font-size: 0.84em;
+				    min-width: 106px;
+				  }
+
+				  /* 底部的状态清单（"某面: 模式 · 原因"）：它是**诊断信息**不是设置项，
+				     降为一档小字、去项目符号、用等宽数字对齐，免得抢视线。 */
+				  .we-picker__surface-policy > ul {
+				    margin: 8px 0 0;
+				    padding: 8px 10px;
+				    list-style: none;
+				    font-size: 0.72em;
+				    line-height: 1.6;
+				    color: var(--we-ink-3, rgba(128, 128, 128, 0.75));
+				    background: var(--dsw-alias-bg-layer-1, rgba(128, 128, 128, 0.045));
+				    border-radius: 8px;
+				    font-variant-numeric: tabular-nums;
+				  }
+				  .we-picker__surface-policy > ul > li + li { margin-top: 2px; }
+				  /* 空清单（还没探测到任何面）不占位。 */
+				  .we-picker__surface-policy > ul:empty { display: none; }
+
 				`;
 
 				// ── 内联模块：packages/glass/src/glass-surfaces.js —— 统一表面策略、安全载体、动态几何与可撤销生命周期（ADR-0016 迁入）；weGlassSurfaceStatus 经入口的 registerGlassStatus 登记回主包（外观 ctx 的诊断投影）（构建期注入；勿手改本段）──

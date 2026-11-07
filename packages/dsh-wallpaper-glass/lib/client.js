@@ -2162,35 +2162,47 @@ window.__ModuleLoader__.load({
 				  /* 根容器：纵向流 + 统一节奏。加载态 / 错误态那两个早退分支也用这个类，
 				     所以这里只给中性的 flex 列，不写任何依赖具体子节点的选择器。 */
 				  .we-picker {
+				    /* ══ 【视觉优化 2026-11-07】节奏令牌 ══════════════════════════════════
+				       把「留白尺度」提成三个变量，后面所有节/行都引用它们，不再各写各的
+				       像素值 —— 想整体收紧或放松只改这三行。 */
+				    --we-pad-card: 20px;      /* 卡片内边距 */
+				    --we-gap-section: 22px;   /* 节与节之间 */
+				    --we-gap-row: 12px;       /* 节内行与行之间 */
+
 				    display: flex;
 				    flex-direction: column;
-				    gap: 14px;
+				    gap: 16px;
 				    min-width: 0;
 				    width: 100%;
 				  }
 
-				  /* 外层卡片：设置页里这一整块就是"一张卡"。留出内边距 + 圆角，
-				     窄屏（侧栏档/小窗）自动收窄内边距，避免内容被挤成竖条。 */
+				  /* 外层卡片：设置页里这一整块就是"一张卡"。
+				     【视觉优化】加大内边距 + 更柔和的底色与描边 —— 原来 1px 实描边配
+				     6% 底色在暗色玻璃上偏"线框感"，改成更淡的描边 + 一点点上浮阴影，
+				     让它像一张浮在玻璃上的纸片而不是一个盒子。 */
 				  .we-picker__card-shell {
 				    display: block;
 				    min-width: 0;
-				    padding: 16px 18px;
-				    border-radius: 14px;
-				    background: var(--dsw-alias-bg-layer-1, rgba(128, 128, 128, 0.06));
-				    border: 1px solid var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.18));
+				    padding: var(--we-pad-card, 20px);
+				    border-radius: 16px;
+				    background: var(--dsw-alias-bg-layer-1, rgba(128, 128, 128, 0.055));
+				    border: 1px solid var(--dsw-alias-border-l1, rgba(128, 128, 128, 0.14));
+				    box-shadow:
+				      0 1px 2px rgba(0, 0, 0, 0.04),
+				      0 8px 24px -12px rgba(0, 0, 0, 0.10);
 				    box-sizing: border-box;
 				  }
 
-				  /* 卡头：插件名 + 数量徽标 + 一句说明，一行排开、底部一条hairline 分隔。
-				     允许换行（窄屏时说明掉到第二行），但标题与徽标始终同排。 */
+				  /* 卡头：插件名 + 数量徽标 + 一句说明。
+				     【视觉优化】加大与下方页签栏的距离（14px），分隔线改为更淡的一档。 */
 				  .we-picker__card-head {
 				    display: flex;
 				    flex-wrap: wrap;
 				    align-items: center;
 				    gap: 8px 10px;
 				    min-width: 0;
-				    padding-bottom: 12px;
-				    border-bottom: 1px solid var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.18));
+				    padding-bottom: 14px;
+				    border-bottom: 1px solid var(--dsw-alias-border-l1, rgba(128, 128, 128, 0.14));
 				  }
 				  .we-picker__card-name {
 				    font-size: 1.05em;
@@ -2488,8 +2500,12 @@ window.__ModuleLoader__.load({
 				         · text-decoration：<a> 默认带下划线。 */
 				    display: inline-flex; align-items: center; justify-content: center; vertical-align: middle;
 				    box-sizing: border-box; height: var(--we-ui-h, 30px); padding: 0 12px;
-				    border: 1px solid var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.35));
-				    border-radius: var(--we-ui-radius, 8px); background: transparent;
+				    /* 【视觉优化 2026-11-07】描边从 0.35 降到 0.28、并给一层极淡的底色：
+				       原来纯透明 + 强描边，在玻璃上像一堆线框；加 2% 底之后按钮有了"实体感"，
+				       悬停时再加深（见下面 :hover），层次就出来了。 */
+				    border: 1px solid var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.28));
+				    border-radius: var(--we-ui-radius, 8px);
+				    background: var(--dsw-alias-bg-layer-1, rgba(128, 128, 128, 0.045));
 				    color: var(--we-ink, inherit); font: inherit; font-size: 0.82em; line-height: 1;
 				    text-decoration: none; white-space: nowrap; cursor: pointer;
 				  }
@@ -2586,18 +2602,32 @@ window.__ModuleLoader__.load({
 				  .we-picker__note { font-size: 0.8em; opacity: 0.85; color: var(--we-accent, var(--dsw-alias-brand-primary, #4f8cff)); }
 
 				  /* ── Visual grouping: sections with a hairline divider + quiet label. ── */
-				  .we-picker__section { display: flex; flex-direction: column; gap: 10px; }
+				  /* 【视觉优化 2026-11-07】节的呼吸感：原来是「10px gap + 12px padding-top」，
+				     节多的时候整页像一条密集表单。改成更分的节奏 —— 节内行距 12px、
+				     节间 22px，分隔线用更淡的一档并**内缩**（不顶到卡片边缘），
+				     视觉上像分段而不是切分。 */
+				  .we-picker__section { display: flex; flex-direction: column; gap: var(--we-gap-row, 12px); }
 				  .we-picker__section + .we-picker__section {
-				    border-top: 1px solid var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.22));
-				    padding-top: 12px;
+				    border-top: 1px solid var(--dsw-alias-border-l1, rgba(128, 128, 128, 0.14));
+				    /* 节间距 = 上一节末尾 → 分隔线 → 下一节开头。
+				       ⚠️ 只给 padding-top，**不给 margin-top**：父级 .we-tabpanel 已经有
+				       12px gap，再加 margin 会叠成 30px+ 的空洞（实测过）。 */
+				    padding-top: var(--we-gap-section, 22px);
 				  }
-				  .we-picker__section-head { display: flex; align-items: center; }
+				  /* 节头：标题与右侧动作（↺）之间留出推力，标题不再贴着右边缘。 */
+				  .we-picker__section-head { display: flex; align-items: center; gap: 8px; }
 				  .we-picker__section-label {
 				    /* 节标题必须**大于**行标签（ctl-label 0.88em）—— 0.72em 那版反而比正文小，
 				       「找路」层级倒挂（用户口径：红圈那批标题要一眼跳出来）。 */
-				    font-size: 1.1em; font-weight: 600; letter-spacing: 0.04em;
-				    /* 分组标题是「找路」信息而非装饰：次级墨色保证暗玻璃上可读。 */
-				    color: var(--we-ink-2, rgba(128, 128, 128, 0.9));
+				    /* 【视觉优化 2026-11-07】层级再拉开一档：
+				       · 字号 1.1em → 1.14em、字重 600 → 650、字距 0.04em → 0.02em
+				         （中文加字距会显松散，收紧一点更规整）；
+				       · 颜色从「次级墨」提到**主墨**：原来灰不溜秋、节与节之间找不到分界，
+				         现在标题成为真正的视觉锚点，下方的行自然退成内容层。
+				       · 右侧留一点内边距，配合 section-head 的 gap 让 ↺ 不与文字挤在一起。 */
+				    font-size: 1.14em; font-weight: 650; letter-spacing: 0.02em;
+				    color: var(--we-ink, inherit);
+				    padding-right: 4px;
 				  }
 				  /* ── 可折叠节头（侧栏「外观」页默认收起的整节，如「全局字体」）：
 				     整行可点（role=button + aria-expanded 挂在头上），箭头随开合旋转；
@@ -2664,6 +2694,30 @@ window.__ModuleLoader__.load({
 				  .we-picker .we-tabs__tab {
 				    height: 32px; padding: 0 6px; font-size: 13px;
 				  }
+				  /* 【视觉优化 2026-11-07】设置页页签栏：轨道加高一点、圆角跟上内层。
+				     ⚠️ 同样用 .we-picker 限定，侧栏那两个复用本类的窄条不受影响。 */
+				  .we-picker > .we-tabs {
+				    padding: 4px;
+				    border-radius: 11px;
+				    background: var(--dsw-alias-bg-layer-1, rgba(128, 128, 128, 0.09));
+				    border-color: var(--dsw-alias-border-l1, rgba(128, 128, 128, 0.16));
+				  }
+				  .we-picker > .we-tabs > .we-tabs__pill {
+				    top: 4px; left: 4px; bottom: 4px;
+				    border-radius: 8px;
+				  }
+				  /* 【视觉优化 2026-11-07】行级悬停反馈：指针经过时给一点点底，
+				     让"这一行"在长表单里能被眼睛跟住（纯背景色过渡，不触发重排）。
+				     ⚠️ 两条限定，都是一路踩过的坑：
+				        ① 只给 .we-picker 下的行：侧栏（.we-qp）复用同一个类，窄栏里
+				           悬停色块会被 320px 宽度放大成"整块高亮"，观感很吵；
+				        ② 不给 .we-picker__ctl 加 padding/margin 做视觉外扩：它是 flex 行、
+				           宽度由父级决定，任何内边距都会改变分段控件的可用宽度
+				           （实测会挤坏「侧边栏圆角」那排按钮）。只上背景与圆角。 */
+				  .we-picker .we-picker__ctl:hover {
+				    border-radius: 8px;
+				    background: var(--dsw-alias-bg-layer-1, rgba(128, 128, 128, 0.045));
+				  }
 				  .we-tabs__tab:hover { color: var(--we-ink, inherit); }
 				  .we-tabs__tab--active { color: var(--we-ink, inherit); font-weight: 600; }
 				  /* 页签面板：淡入 + 轻微上移落定（reduced-motion 由全局媒体查询静止）。 */
@@ -2675,12 +2729,16 @@ window.__ModuleLoader__.load({
 				    from { opacity: 0; transform: translateY(4px); }
 				  }
 
-				  /* ── 统一设置行：左「标签(+一句话说明)」、右控件；32px 触达高度。 ── */
+				  /* ── 统一设置行：左「标签(+一句话说明)」、右控件；34px 触达高度。 ── */
+				  /* 【视觉优化 2026-11-07】min-height 32 → 34px、gap 12 → 14px：
+				     多行说明（标签 + 提示两行）在 32px 里会顶到上下边界，34px 才容得下
+				     1.35 行高；gap 加宽让「文字 / 控件」之间有明确分工而不是粘在一起。 */
 				  .we-picker__ctl {
 				    display: flex; align-items: center; justify-content: space-between;
-				    gap: 12px; min-height: 32px;
+				    gap: 14px; min-height: 34px;
+				    transition: background-color var(--we-dur-fast, 120ms) var(--we-ease, ease);
 				  }
-				  .we-picker__ctl--wrap { flex-wrap: wrap; row-gap: 8px; }
+				  .we-picker__ctl--wrap { flex-wrap: wrap; row-gap: 10px; }
 				  /* ── 分段控件在「左说明 / 右控件」行里的取宽口径（#253）────────────────────────
 				     说明可以是长句（max-content 会吃满整行），若控件仍用 flex:1（basis 0）就只能分到
 				     「剩余宽度」⇒ 三元组被压成几像素宽的窄格、文字互相截断。两条口径：
@@ -2705,15 +2763,21 @@ window.__ModuleLoader__.load({
 				     "此刻是谁在决定颜色"。pointer-events:none 同时挡掉色板与取色器；渲染器那边也给了空
 				     处理器 —— 两道都有，样式万一挂了也不至于写脏配置。 */
 				  .we-picker__ctl--disabled { opacity: 0.45; pointer-events: none; }
-				  .we-picker__ctl-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+				  .we-picker__ctl-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 				  .we-picker__ctl-label {
-				    font-size: 0.88em; color: var(--we-ink, inherit);
+				    /* 【视觉优化 2026-11-07】行标签从 0.88em 提到 0.9em、行高 1.35：
+				       原来紧贴提示文字，两行叠在一起时字挤得发闷；加一点行高与字距呼吸。 */
+				    font-size: 0.9em; line-height: 1.35; letter-spacing: 0.01em;
+				    color: var(--we-ink, inherit);
 				    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 				  }
 				  .we-picker__ctl-hint {
 				    /* 说明**允许换行**（#253）：564px 内容宽下长句原先被 nowrap 直接截成省略号，用户看不到
 				       后半句；换行后行高由内容撑开，标签仍单行（控件列宽度因此可预期）。 */
-				    font-size: 0.7em; color: var(--we-ink-3, rgba(128, 128, 128, 0.65));
+				    /* 【视觉优化】0.7em → 0.74em，行高 1.5。原来提示字小到在玻璃背景上必须凑近看；
+				       提到 0.74em 并给足行高后，多行说明也能读。墨色略提一档保可读。 */
+				    font-size: 0.74em; line-height: 1.5;
+				    color: var(--we-ink-3, rgba(128, 128, 128, 0.75));
 				    overflow-wrap: anywhere; max-width: 100%;
 				  }
 				  .we-picker__ctl-side { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
@@ -2936,10 +3000,14 @@ window.__ModuleLoader__.load({
 
 				  /* ── 效果页签空态：不摆一列无效滑块，引导去选壁纸。 ── */
 				  .we-picker__empty {
-				    display: flex; flex-direction: column; align-items: center; gap: 10px;
-				    padding: 36px 16px; text-align: center;
+				    display: flex; flex-direction: column; align-items: center; gap: 12px;
+				    /* 【视觉优化】上下留白加大 + 虚线描边：空态不再是"一片空白里飘两行字"，
+				       而是一个明确的占位区（虚线框提示"这里将来会有内容"）。 */
+				    padding: 44px 20px; text-align: center;
+				    border: 1px dashed var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.22));
+				    border-radius: 12px;
 				  }
-				  .we-picker__empty-title { font-size: 0.95em; font-weight: 600; color: var(--we-ink, inherit); }
+				  .we-picker__empty-title { font-size: 1em; font-weight: 600; color: var(--we-ink, inherit); }
 
 				  /* ── Vinyl record (黑胶唱片): rotating disc with the selected wallpaper's
 				     cover as the label. Spins while the wallpaper is playing; pauses
