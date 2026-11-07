@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-	id: "dsh-plugin-wallpaper-engine",
+	id: "dsh-wallpaper-glass",
 	factory: (require) => {
 		var module = { exports: {} };
 		var exports = module.exports;
@@ -4742,7 +4742,7 @@ window.__ModuleLoader__.load({
 				let weSidebarOpenFn = null; // 官方态的 openTab 调用（抽屉态为 null）
 				let weSidebarCtrl = null;   // 官方态控制器（isExpanded/active/toggleExpanded 的宿主面）
 				const WE_SIDEBAR_KIND = "wallpaper-library";
-				const WE_SIDEBAR_ID = "dsh-plugin-wallpaper-engine/library";
+				const WE_SIDEBAR_ID = "dsh-wallpaper-glass/library";
 
 				function sidebarRightMode() {
 				  return weSidebarMode;
@@ -28784,7 +28784,7 @@ window.__ModuleLoader__.load({
 		};
 
 		// ── 跨包浏览器半边通道（ADR-0014 S5.1 / S5.4「宿主注入显式键集」）────────────────────
-		// 子包产物由 loader 用 `require("dsh-plugin-wallpaper-engine")` 取本 bundle 的导出面。
+		// 子包产物由 loader 用 `require("dsh-wallpaper-glass")` 取本 bundle 的导出面。
 		// 这里挂的是**显式键集**，不是整个 module.exports：子包要什么就登记什么，多给一个键就是多
 		// 一条没人维护的隐式契约。键集与各子包 src/client.js 的 *_HOST_REQUIRED 逐字对齐
 		// （缺键那几包自己会大声抛），判据见 test/verify-subpackage-client-half.mjs。

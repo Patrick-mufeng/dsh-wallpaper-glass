@@ -1,10 +1,10 @@
 window.__ModuleLoader__.load({
-	id: "dsh-plugin-wallpaper-engine-media-bridge",
+	id: "dsh-wallpaper-glass-media-bridge",
 	factory: (require) => {
 		var module = { exports: {} };
 		var exports = module.exports;
 		Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
-		const host = require("dsh-plugin-wallpaper-engine");
+		const host = require("dsh-wallpaper-glass");
 				// ── 内联模块：packages/media-bridge/src/wallpaper-current-section.js —— 「壁纸库」页签第一节「当前壁纸」的渲染器（ADR-0013/ADR-0014 子包出户）；入口的 registerPanelSection 把它的 render 登记进面板节注册表（library，order 10）（构建期注入；勿手改本段）──
 				/**
 				 * 「壁纸库」页签第一节「当前壁纸」的渲染器。

@@ -1,13 +1,13 @@
 {
-  "name": "dsh-plugin-wallpaper-engine-fonts",
+  "name": "dsh-wallpaper-glass-ui",
   "version": "1.4.2",
-  "description": "Font system for the DSH wallpaper engine: the appearance tab's font section and the font-set editor (browser half, packages/fonts/lib/client.fonts.js) plus the host routes /fontsets and /system-fonts. Config keys and state stay in the main bundle (ADR-0013 D20); the only cross-package channel is the main bundle's explicit host bridge（浏览器半边契约见 ADR-0014 S3.8/S3.9）.",
+  "description": "Liquid glass surfaces for the DSH wallpaper engine: per-surface glaze variables, the surface manager runtime, and the Glass section of the Appearance tab. Disabling this row returns the host to its native theme.",
   "icon": "./icon.png",
   "type": "module",
   "main": "./lib/index.js",
   "exports": {
     ".": "./lib/index.js",
-    "./client": "./lib/client.fonts.js",
+    "./client": "./lib/client.glass.js",
     "./package.json": "./package.json",
     "./locale/*.json": "./locale/*.json",
     "./cordis.patch.yml": "./cordis.patch.yml"
@@ -17,7 +17,7 @@
       "patch": "./cordis.patch.yml"
     },
     "client": {
-      "inject": ["@deepseek-ai/dsh-client-runtime", "dsh-plugin-wallpaper-engine"],
+      "inject": ["@deepseek-ai/dsh-client-runtime", "dsh-wallpaper-glass"],
       "platform": "web",
       "immediately": true
     }

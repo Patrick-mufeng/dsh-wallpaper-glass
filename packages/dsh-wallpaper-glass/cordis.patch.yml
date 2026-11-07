@@ -1,4 +1,4 @@
-# dsh-we-slim bundle patch — slimmed from dsh-plugin-wallpaper-engine@1.4.2
+# dsh-we-slim bundle patch — slimmed from dsh-wallpaper-glass@1.4.2
 #
 # 上游：https://github.com/elysia395/dsh-wallpaper-engine (MIT)
 # 本发行版由使用方按「只保留在用的部分」裁成，行集与上游的差异见 README。
@@ -31,16 +31,16 @@
 
 - insert:
     - id: wallpaper-engine
-      name: 'dsh-plugin-wallpaper-engine'
+      name: 'dsh-wallpaper-glass'
     # 壁纸域路由族：/inventory、/media、/preview、/upload、/remove、/props、/slides、
     # /scene-* 等 —— 壁纸字节与库存的**唯一来源**，绝不可停。
     - id: wallpaper-engine-media-bridge
-      name: 'dsh-plugin-wallpaper-engine-media-bridge'
+      name: 'dsh-wallpaper-glass-media-bridge'
     # 液态玻璃：ADR-0016 四刀之后整族随包走（渲染器 + CSS + 主题预设 UI）。
     # 停用本行 = 玻璃样式表与行为层整体退场，界面回到宿中原生外观（壁纸仍在）。
     - id: wallpaper-engine-glass
-      name: 'dsh-plugin-wallpaper-engine-glass'
+      name: 'dsh-wallpaper-glass-ui'
     # 字体系统：宿主半边（/fontsets、/system-fonts）+ 浏览器半边（外观页签「全局字体」）。
     # 字体的键、默认值与持久化仍住主包 lib/settings-schema.js（FONTSET_KEYS）。
     - id: wallpaper-engine-fonts
-      name: 'dsh-plugin-wallpaper-engine-fonts'
+      name: 'dsh-wallpaper-glass-fonts'

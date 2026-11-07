@@ -1,10 +1,10 @@
 window.__ModuleLoader__.load({
-	id: "dsh-plugin-wallpaper-engine-fonts",
+	id: "dsh-wallpaper-glass-fonts",
 	factory: (require) => {
 		var module = { exports: {} };
 		var exports = module.exports;
 		Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
-		const host = require("dsh-plugin-wallpaper-engine");
+		const host = require("dsh-wallpaper-glass");
 				// ── 内联模块：packages/fonts/src/appearance-font-section.js —— 外观页签第六节「全局字体」的渲染器（ADR-0013/ADR-0014 子包出户）；入口的 registerPanelSection 把它的 render 登记进面板节注册表（构建期注入；勿手改本段）──
 				/**
 				 * appearance-font-section.js — 外观页签第六节「全局字体」的渲染器（P-C 搬出）。

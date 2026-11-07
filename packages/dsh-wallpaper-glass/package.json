@@ -1,7 +1,7 @@
 {
-  "name": "dsh-we-slim",
+  "name": "dsh-wallpaper-glass",
   "version": "1.4.2-slim.1",
-  "description": "Slimmed branch of dsh-plugin-wallpaper-engine@1.4.2 (upstream: elysia395/dsh-wallpaper-engine, MIT): wallpaper + liquid glass + fonts + media bridge only. Removed: mascot/avatar, FX, parallax, pet-link, extensions tab, about tab.",
+  "description": "Wallpaper-engine backgrounds with iOS-style liquid glass for the DSH web GUI. Slim fork of dsh-plugin-wallpaper-engine@1.4.2 (upstream: elysia395/dsh-wallpaper-engine, MIT): wallpaper + liquid glass + fonts only.",
   "type": "module",
   "engines": {
     "node": ">=22.12.0",
@@ -17,7 +17,9 @@
     "wallpaper",
     "wallpaper-engine",
     "theme",
-    "background"
+    "background",
+    "glass",
+    "liquid-glass"
   ],
   "publishConfig": {
     "access": "public"
@@ -126,9 +128,9 @@
   "dependencies": {
     "webwallgl": "^3.0.0",
     "x11": "^4.3.1",
-    "dsh-plugin-wallpaper-engine-fonts": "1.4.2",
-    "dsh-plugin-wallpaper-engine-glass": "1.4.2",
-    "dsh-plugin-wallpaper-engine-media-bridge": "1.4.2"
+    "dsh-wallpaper-glass-fonts": "1.4.2",
+    "dsh-wallpaper-glass-ui": "1.4.2",
+    "dsh-wallpaper-glass-media-bridge": "1.4.2"
   },
   "overrides": {
     "js-yaml": "4.3.2"

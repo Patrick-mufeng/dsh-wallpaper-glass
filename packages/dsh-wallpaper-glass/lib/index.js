@@ -100,11 +100,11 @@ import { registerCacheDirRoutes } from './routes/cache-dir.js';
 // （wallpaper-engine-about-notice / wallpaper-engine-mascot-avatar）在本发行版里
 // 已被整块裁掉，对应 npm 包也不再是依赖 ⇒ 保留 import 会在模块求值期直接
 // ERR_MODULE_NOT_FOUND，整包起不来。
-// import { applyImpl as applyAboutNoticeImpl } from 'dsh-plugin-wallpaper-engine-about-notice';
-// import { applyImpl as applyMascotAvatarImpl } from 'dsh-plugin-wallpaper-engine-mascot-avatar';
+// import { applyImpl as applyAboutNoticeImpl } from 'dsh-wallpaper-glass-about-notice';
+// import { applyImpl as applyMascotAvatarImpl } from 'dsh-wallpaper-glass-mascot-avatar';
 // 第三件组件（媒体桥入包）：路由族、后端实现与 macOS 音频 tap 源码随包走 ⇒ 门面只剩分发点。
 // ⚠️ 这个必须留：media-bridge 承载 /inventory、/media、/preview、/upload 等壁纸本体路由。
-import { applyImpl as applyMediaBridgeImpl } from 'dsh-plugin-wallpaper-engine-media-bridge';
+import { applyImpl as applyMediaBridgeImpl } from 'dsh-wallpaper-glass-media-bridge';
 // 组件行**浏览器可见面**的声明单一真源（ADR-0013 D3②）：宿主侧持有"组件名 → 浏览器渲染落点"，
 // 浏览器侧只持有 gate（`COMPONENT_GATE` 指向的那一个判定函数）；对账在
 // `test/verify-component-visibility.mjs`。这里**再导出**一次，使它落在 import 图上 ——
@@ -318,7 +318,7 @@ export function apply(ctx) {
   //               `WE_ASSETS_DIR` 的访问器 `getWeAssetsDir` 由键表 `kernel:` 源型直取可变真源。
 
   // 6b. 字体集族路由（list / get / put / delete / activate / import / export）**已出户**到子包行
-  //     `dsh-plugin-wallpaper-engine-fonts`（P-A，packages/fonts/lib/routes/fontsets.js，
+  //     `dsh-wallpaper-glass-fonts`（P-A，packages/fonts/lib/routes/fontsets.js，
   //     patch 里 `id: wallpaper-engine-fonts`）。一个 `prefix` 注册覆盖七个端点；客户端半边
   //     （设置面板的字体段）仍留主 bundle —— §7.1「P-A 不动设置面板」。
   //     门面**不再**有这条调用点：那一行的 c 面由 `lib/subpackage-boot.js` 的冻结键集喂
@@ -350,7 +350,7 @@ export function apply(ctx) {
   //     按运行时注册逐条对账；全表与每族条数用 `node test/tools/host-route-index.mjs` 现算。
 
   // 6c′. 本机字体清单（设置页「全局字体 / 终端字体」下拉里那一组）**已出户**到同一子包行
-  //      `dsh-plugin-wallpaper-engine-fonts`（packages/fonts/lib/routes/system-fonts.js）。
+  //      `dsh-wallpaper-glass-fonts`（packages/fonts/lib/routes/system-fonts.js）。
   //      三平台各一条权威来源（system_profiler / PowerShell / fc-list），拿不到时按文件名推
   //      并**如实标 approximate**；一次扫描很贵（macOS 实测 ~10s）⇒ 双层缓存 + 过期先回旧值。
   //      扫描**不在启动期**发生：第一次请求这条路才触发（族文件头的不变量）。

@@ -1,10 +1,10 @@
 window.__ModuleLoader__.load({
-	id: "dsh-plugin-wallpaper-engine-glass",
+	id: "dsh-wallpaper-glass-ui",
 	factory: (require) => {
 		var module = { exports: {} };
 		var exports = module.exports;
 		Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
-		const host = require("dsh-plugin-wallpaper-engine");
+		const host = require("dsh-wallpaper-glass");
 				// ── 内联模块：packages/glass/src/glass-css.js —— 玻璃样式表（ADR-0016 第四刀）：ADR-0016 第四刀迁入：CSS_GLASS 由入口的 ensureGlassCss() 在求值期注入独立 <style data-plugin-css> 标签（主包 sheet 之后）（构建期注入；勿手改本段）──
 				/**
 				 * glass-css.js —— 玻璃样式表（ADR-0016 第四刀：玻璃 CSS 随包走）。

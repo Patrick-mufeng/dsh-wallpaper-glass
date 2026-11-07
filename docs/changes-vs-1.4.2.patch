@@ -1,7 +1,24 @@
+# 相对上游 dsh-plugin-wallpaper-engine@1.4.2 的改动
+#
+# 说明：本补丁只含主包的 lib/client.js 与 lib/index.js 两个文件（其余改动是
+# 删文件、改 package.json 与 cordis.patch.yml，不属于代码逻辑，见 README）。
+#
+# 应用方式（在解包后的上游主包目录内）：
+#   git apply changes-vs-1.4.2.patch
+#
+# 注意：本版包名已改为 dsh-wallpaper-glass 系列，补丁中出现的包名是**新名**。
+#
 diff --git a/lib/client.js b/lib/client.js
-index 93d52f8..877c796 100644
+index 93d52f8..37ae4a1 100644
 --- a/lib/client.js
 +++ b/lib/client.js
+@@ -1,5 +1,5 @@
+ window.__ModuleLoader__.load({
+-	id: "dsh-plugin-wallpaper-engine",
++	id: "dsh-wallpaper-glass",
+ 	factory: (require) => {
+ 		var module = { exports: {} };
+ 		var exports = module.exports;
 @@ -2148,6 +2148,98 @@ window.__ModuleLoader__.load({
  				     sectionList): the ul/li carry no default list styling. */
  				  .we-picker__section-list { margin: 0; padding: 0; list-style: none; }
@@ -214,6 +231,15 @@ index 93d52f8..877c796 100644
  				    border: 1px solid var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.35));
  				    border-radius: var(--we-ui-radius, 8px); background: transparent; cursor: pointer;
  				    color: var(--we-ink-2, rgba(128, 128, 128, 0.9));
+@@ -4571,7 +4742,7 @@ window.__ModuleLoader__.load({
+ 				let weSidebarOpenFn = null; // 官方态的 openTab 调用（抽屉态为 null）
+ 				let weSidebarCtrl = null;   // 官方态控制器（isExpanded/active/toggleExpanded 的宿主面）
+ 				const WE_SIDEBAR_KIND = "wallpaper-library";
+-				const WE_SIDEBAR_ID = "dsh-plugin-wallpaper-engine/library";
++				const WE_SIDEBAR_ID = "dsh-wallpaper-glass/library";
+ 
+ 				function sidebarRightMode() {
+ 				  return weSidebarMode;
 @@ -13544,51 +13715,30 @@ window.__ModuleLoader__.load({
  
  				  function renderMascotTab(ctx) {
@@ -691,8 +717,17 @@ index 93d52f8..877c796 100644
  		      return () => {
  		        try { root.unmount(); } catch { /* already gone */ }
  		        if (host.parentNode) host.parentNode.removeChild(host);
+@@ -28832,7 +28784,7 @@ window.__ModuleLoader__.load({
+ 		};
+ 
+ 		// ── 跨包浏览器半边通道（ADR-0014 S5.1 / S5.4「宿主注入显式键集」）────────────────────
+-		// 子包产物由 loader 用 `require("dsh-plugin-wallpaper-engine")` 取本 bundle 的导出面。
++		// 子包产物由 loader 用 `require("dsh-wallpaper-glass")` 取本 bundle 的导出面。
+ 		// 这里挂的是**显式键集**，不是整个 module.exports：子包要什么就登记什么，多给一个键就是多
+ 		// 一条没人维护的隐式契约。键集与各子包 src/client.js 的 *_HOST_REQUIRED 逐字对齐
+ 		// （缺键那几包自己会大声抛），判据见 test/verify-subpackage-client-half.mjs。
 diff --git a/lib/index.js b/lib/index.js
-index 1c822a6..d1c1877 100644
+index 1c822a6..2042c87 100644
 --- a/lib/index.js
 +++ b/lib/index.js
 @@ -84,7 +84,9 @@ import { registerDiagRoutes } from './routes/diag.js';
@@ -706,7 +741,7 @@ index 1c822a6..d1c1877 100644
  // C8′/C6 出户的组件行（P2-1 / P2-2）：组件入口**静态** import（不是动态）—— `test/verify-reachability.mjs`
  // 只从 ENTRY 沿 import 边走，动态加载的组件入口会被判定为不可达，棘轮当场变红。
  // 组件名 → 实现表的登记在 `applyComponent` **函数体内**（P2-1b 起；模块级常量会让门面求值期
-@@ -94,9 +96,14 @@ import { registerRopeArtRoutes } from './routes/rope-art.js';
+@@ -94,10 +96,15 @@ import { registerRopeArtRoutes } from './routes/rope-art.js';
  // 实现），**不是**跨包通道 —— 跨包通道只有 `ctx.wallpaperEngineHost`（ADR-0014 S5.1/S5.2）；
  // 该边随 §12 的发布形态（主包精确依赖子包）成立，开发期由根 `devDependencies` 的
  // `file:packages/<组件>` 提供。
@@ -716,13 +751,33 @@ index 1c822a6..d1c1877 100644
 +// （wallpaper-engine-about-notice / wallpaper-engine-mascot-avatar）在本发行版里
 +// 已被整块裁掉，对应 npm 包也不再是依赖 ⇒ 保留 import 会在模块求值期直接
 +// ERR_MODULE_NOT_FOUND，整包起不来。
-+// import { applyImpl as applyAboutNoticeImpl } from 'dsh-plugin-wallpaper-engine-about-notice';
-+// import { applyImpl as applyMascotAvatarImpl } from 'dsh-plugin-wallpaper-engine-mascot-avatar';
++// import { applyImpl as applyAboutNoticeImpl } from 'dsh-wallpaper-glass-about-notice';
++// import { applyImpl as applyMascotAvatarImpl } from 'dsh-wallpaper-glass-mascot-avatar';
  // 第三件组件（媒体桥入包）：路由族、后端实现与 macOS 音频 tap 源码随包走 ⇒ 门面只剩分发点。
+-import { applyImpl as applyMediaBridgeImpl } from 'dsh-plugin-wallpaper-engine-media-bridge';
 +// ⚠️ 这个必须留：media-bridge 承载 /inventory、/media、/preview、/upload 等壁纸本体路由。
- import { applyImpl as applyMediaBridgeImpl } from 'dsh-plugin-wallpaper-engine-media-bridge';
++import { applyImpl as applyMediaBridgeImpl } from 'dsh-wallpaper-glass-media-bridge';
  // 组件行**浏览器可见面**的声明单一真源（ADR-0013 D3②）：宿主侧持有"组件名 → 浏览器渲染落点"，
  // 浏览器侧只持有 gate（`COMPONENT_GATE` 指向的那一个判定函数）；对账在
+ // `test/verify-component-visibility.mjs`。这里**再导出**一次，使它落在 import 图上 ——
+@@ -311,7 +318,7 @@ export function apply(ctx) {
+   //               `WE_ASSETS_DIR` 的访问器 `getWeAssetsDir` 由键表 `kernel:` 源型直取可变真源。
+ 
+   // 6b. 字体集族路由（list / get / put / delete / activate / import / export）**已出户**到子包行
+-  //     `dsh-plugin-wallpaper-engine-fonts`（P-A，packages/fonts/lib/routes/fontsets.js，
++  //     `dsh-wallpaper-glass-fonts`（P-A，packages/fonts/lib/routes/fontsets.js，
+   //     patch 里 `id: wallpaper-engine-fonts`）。一个 `prefix` 注册覆盖七个端点；客户端半边
+   //     （设置面板的字体段）仍留主 bundle —— §7.1「P-A 不动设置面板」。
+   //     门面**不再**有这条调用点：那一行的 c 面由 `lib/subpackage-boot.js` 的冻结键集喂
+@@ -343,7 +350,7 @@ export function apply(ctx) {
+   //     按运行时注册逐条对账；全表与每族条数用 `node test/tools/host-route-index.mjs` 现算。
+ 
+   // 6c′. 本机字体清单（设置页「全局字体 / 终端字体」下拉里那一组）**已出户**到同一子包行
+-  //      `dsh-plugin-wallpaper-engine-fonts`（packages/fonts/lib/routes/system-fonts.js）。
++  //      `dsh-wallpaper-glass-fonts`（packages/fonts/lib/routes/system-fonts.js）。
+   //      三平台各一条权威来源（system_profiler / PowerShell / fc-list），拿不到时按文件名推
+   //      并**如实标 approximate**；一次扫描很贵（macOS 实测 ~10s）⇒ 双层缓存 + 过期先回旧值。
+   //      扫描**不在启动期**发生：第一次请求这条路才触发（族文件头的不变量）。
 @@ -375,12 +382,11 @@ export function apply(ctx) {
      normalizeUserDir, cacheBaseDir, setCacheDir, armBodyIdleTimeout,
    });

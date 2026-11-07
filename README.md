@@ -1,8 +1,10 @@
-# dsh-we-slim
+# dsh-wallpaper-glass
 
-DSH（DeepSeek Harness）壁纸引擎插件的**精简分支** —— 只保留日常实际在用的部分。
+DSH（DeepSeek Harness）壁纸引擎插件的**精简分支** —— 只保留日常实际在用的部分：壁纸 + 液态玻璃。
 
 基于 [elysia395/dsh-wallpaper-engine](https://github.com/elysia395/dsh-wallpaper-engine) **v1.4.2**（MIT License）裁剪而来。
+
+> 包名已与上游完全脱离（`dsh-wallpaper-glass` 系列），可以与本机上的上游原版共存而不冲突。
 
 ---
 
@@ -29,11 +31,20 @@ DSH（DeepSeek Harness）壁纸引擎插件的**精简分支** —— 只保留�
 
 ```
 packages/
-├── dsh-plugin-wallpaper-engine/           主包：壁纸扫描/服务 + 设置面板 + 样式层
-├── dsh-plugin-wallpaper-engine-media-bridge/  壁纸字节与库存路由（27 条，壁纸本体）
-├── dsh-plugin-wallpaper-engine-glass/     液态玻璃渲染器与 CSS
-└── dsh-plugin-wallpaper-engine-fonts/     字体集与系统字体扫描
+├── dsh-wallpaper-glass/                主包：壁纸扫描/服务 + 设置面板 + 样式层
+├── dsh-wallpaper-glass-media-bridge/   壁纸字节与库存路由（27 条，壁纸本体）
+├── dsh-wallpaper-glass-ui/             液态玻璃渲染器与 CSS
+└── dsh-wallpaper-glass-fonts/          字体集与系统字体扫描
 ```
+
+| 目录 | npm 包名 |
+|---|---|
+| `packages/dsh-wallpaper-glass` | `dsh-wallpaper-glass` |
+| `packages/dsh-wallpaper-glass-media-bridge` | `dsh-wallpaper-glass-media-bridge` |
+| `packages/dsh-wallpaper-glass-ui` | `dsh-wallpaper-glass-ui` |
+| `packages/dsh-wallpaper-glass-fonts` | `dsh-wallpaper-glass-fonts` |
+
+> 注意玻璃子包的 npm 名是 `-ui` 而不是 `-glass`：主包已占用 `dsh-wallpaper-glass`，再用 `dsh-wallpaper-glass-glass` 既冗长又易混。
 
 上游的 `about-notice` / `mascot-avatar` / `fx` / `parallax` / `pet-link` 五个包**不在本仓库**。
 
@@ -116,9 +127,9 @@ dsh plugin --profile web add <同上>
 
 以恢复「桌宠联动」为例：
 
-1. `dsh plugin add dsh-plugin-wallpaper-engine-pet-link@1.4.2`
-2. `packages/dsh-plugin-wallpaper-engine/package.json` 的 `dependencies` 加回该包
-3. `packages/dsh-plugin-wallpaper-engine/cordis.patch.yml` 加回那一行：
+1. `dsh plugin add dsh-plugin-wallpaper-engine-pet-link@1.4.2`（从上游装，包名保持上游原样）
+2. `packages/dsh-wallpaper-glass/package.json` 的 `dependencies` 加回该包
+3. `packages/dsh-wallpaper-glass/cordis.patch.yml` 加回那一行：
    ```yaml
    - id: wallpaper-engine-pet-link
      name: 'dsh-plugin-wallpaper-engine-pet-link'
