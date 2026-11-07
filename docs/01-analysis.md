@@ -109,7 +109,7 @@
 | ④ 桌宠联动 | 检测态、安装说明图文、安装/启用/停用、测试 | 卡片式 |
 
 ### 页签 6 · 关于（about）
-简介、致谢、仓库链接、Star 数（GitHub API）、QQ 群 / 抖音群二维码、更新公告。
+简介、致谢、仓库链接、Star 数（GitHub API）、静态配图、更新公告。
 
 ### 面板之外的常驻物
 - **拉绳吉祥物**（聊天顶部那只可拖拽的挂件，拖拽/点击开壁纸仓库）
@@ -249,7 +249,7 @@
   ├─ assets\readme\*                          863 KB （纯 README 插图，可删）
   ├─ assets\rope\*                          1,740 KB （10 张吉祥物立绘）
   ├─ assets\about\*                           236 KB （赞赏码）
-  ├─ lib\about\*                              268 KB （QQ/抖音群二维码 + 公告图）
+  ├─ lib\about\*                              268 KB （静态配图 + 公告图）
   ├─ lib\glass-presets\*                      239 KB （7 套出厂预设 + 1 套作者自用 156 KB）
   ├─ lib\client.js                          1,926 KB / 28,975 行
   └─ lib\settings-schema.js                  148 KB / 2,146 行

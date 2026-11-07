@@ -15,7 +15,7 @@
 #   · wallpaper-engine-fx            —— 点击涟漪 / 拖尾特效
 #   · wallpaper-engine-parallax      —— 3D 视差
 #   · wallpaper-engine-pet-link      —— 桌宠联动（连带 20.3 MB 素材）
-#   · wallpaper-engine-about-notice  —— 「关于」页签的 Star 数 / 群二维码
+#   · wallpaper-engine-about-notice  —— 「关于」页签的 Star 数与静态配图
 #
 # ⚠️ 这 5 行必须**同时**从本文件删除，不能只从 dependencies 里删：
 #    主包 apply() 的 assertSubpackagesResolvable 会按 patch 里的净新增行逐个 resolve，

@@ -21,17 +21,16 @@ window.__ModuleLoader__.load({
 				// 项目仓库（README / package.json 的同一条地址）：关于页的按钮与可复制文本都用它。
 				const ABOUT_REPO_URL = "https://github.com/elysia395/dsh-wallpaper-engine";
 
-				// 两张二维码的**路由路径**（相对 BASE，交给 apiUrl 拼前缀）：
-				//   · QQ 群「DSHWE | LLM 讨论群」     → lib/about/qq-group.png
-				//   · 抖音群「dsh 交流群」            → lib/about/douyin-group.png
-				// 文件名与 packages/about-notice/lib/routes/about-qr.js 的白名单**逐字相同**（守卫两边对账）。
-				const ABOUT_QR_QQ_PATH = "/about-qr/qq-group.png";
-				const ABOUT_QR_DOUYIN_PATH = "/about-qr/douyin-group.png";
+				// 【精简改动 2026-11-07】两条指向静态配图的路径常量已移除（连同其注释）。
+				// 它们曾供「关于」页使用；该页已整页裁掉、对应图片也已从发行版剔除，
+				// 常量再无消费者 ⇒ 一并删除（避免留下指向不存在文件的死配置）。
 
 				// 「更新公告」一次弹窗的配图（v1.3.0 起：GitHub 求星插画，JPEG 720×720）：
 				//   · 派生自 assets/about/update-notice-star-1254x1254.png（缩到 720px、JPEG q88）
 				//   · 随包发布 lib/about/update-notice.jpg，由 /about-qr 路由族直出（同一白名单）
 				//   · 版本换图 = 替换 lib/about/update-notice.jpg 的字节，路径与产物都不动（ETag 会变）。
+				// ⚠️ 本版已剔除 lib/about/ 与 about-notice 行 ⇒ 这张图取不到；更新公告
+				//    （UpdateNotice）仍会正常弹出，只是退化为**无图形态**（art-gate 探测不到就不画 img）。
 				const NOTICE_ART_PATH = "/about-qr/update-notice.jpg";
 
 				// ── 内联模块：src/we-base.js —— 浏览器半边的最小地基：三枚到处都用的纯工具（唯一实现）—— 钳位 `weClampTo` · 单调时钟 `weNow` · body 根 `weBody`；零依赖 + 零顶层可执行语句，故可排在内联清单最前（构建期注入；勿手改本段）──
@@ -954,7 +953,7 @@ window.__ModuleLoader__.load({
 				  "立绘": "mascot art",
 				  "清除失败：{error}": "Clear failed: {error}",
 
-				  // ── src/panel-tabs.js · 「关于」页签（简介 / 致谢 / 仓库 / 交流群）──
+				  // ── src/panel-tabs.js · 「关于」页签（简介 / 致谢 / 仓库 / 资讯区块）──
 				  //    人名与项目标识不译（oneincase / YV3507 / WebWallGL / media-bridge / scene-gl…）；
 				  //    中文全角标点只出现在键里 —— 值里一律 ASCII（守卫会把全角标点当"中文"判红）。
 				  "关于": "About",
@@ -984,14 +983,8 @@ window.__ModuleLoader__.load({
 				  "来自 GitHub API 的实时数据（带缓存；拉不到时显示上一次取到的值）": "Live data from the GitHub API (cached; when GitHub cannot be reached the last known value is shown)",
 				  "🔗 仓库地址（按钮打不开时可手动复制）：": "🔗 Repository URL (copy it manually if the button does nothing):",
 				  "想要新功能、遇到问题，或者想看看接下来要做什么，都欢迎来仓库提 Issue / PR —— 一起把它做得更好 🧰": "Want a new feature, hit a problem, or curious what is next? File an Issue / PR in the repo — let's make it better together. 🧰",
-				  "💬 加入交流群": "💬 Join the community",
-				  "卡住了、想吐槽、或者想第一时间拿到新版本，都欢迎来群里找我们 👋": "Stuck, want to vent, or want new versions the moment they land? Come find us in the groups. 👋",
-				  "🐧 QQ 群 · DSHWE | LLM 讨论群": "🐧 QQ group · DSHWE | LLM discussion",
-				  "🎵 抖音群 · dsh 交流群": "🎵 Douyin group · dsh community",
-				  "QQ 群二维码": "QQ group QR code",
-				  "抖音群二维码": "Douyin group QR code",
-				  "手机 QQ 扫码加入 · 群里见 👋": "Scan with QQ on your phone to join · see you there 👋",
-				  "抖音扫码加入 · 群号 252729465001": "Scan in Douyin to join · group ID 252729465001",
+				  // 【精简改动 2026-11-07】「关于」页专用的一整段词条已移除：它们只服务
+				  // 该页的资讯区块，而那个页签已整页裁掉 ⇒ 留下是无人消费的死文案。
 				  "💌 感谢每一位使用者 —— 换上你喜欢的那张壁纸，这个插件就没白写。": "💌 Thanks to every user — put up a wallpaper you love and this plugin has done its job.",
 				  // ══ UPDATE NOTICE COPY（begin）══════════════════════════════════════════════
 				  // 本区段是**纯公告文案词条**：CI 的 `notice` 快通道只在这一段内放行"只改字符串内容"
@@ -4175,10 +4168,10 @@ window.__ModuleLoader__.load({
 				 * 不得有顶层可执行语句去读宿主状态（内联位置早于 client.js 正文）、整体是**纯数据**。
 				 */
 				const CSS_EXT = `
-				  /* ── 「关于」页签：静态页（简介 / 致谢 / 仓库 / 交流群二维码）──
-				     排版口径与设置行一致：正文走主题墨色 token（不新造颜色），只有二维码卡片
-				     自带一层极薄的玻璃底衬 —— 码图本身是**不透明白底 PNG**，深色主题下若直接
-				     贴在玻璃上会像一块补丁，故给它圆角 + 边框 + 一点呼吸空间。 */
+				  /* ── 【精简改动 2026-11-07】「关于」页签的样式已整段失效 ──────────────
+				     该页已整页裁掉，以下 .we-about__* 规则**无任何 DOM 消费者**。
+				     保留它们只是为了减少改动面（纯 CSS、不加载、不影响任何渲染）；
+				     如需进一步瘦身可整段删除。 */
 				  .we-about__lead { display: flex; flex-direction: column; gap: 8px; }
 				  .we-about__lead-title { font-size: 0.95em; font-weight: 600; color: var(--we-ink, inherit); }
 				  .we-about__p { margin: 0; font-size: 0.82em; line-height: 1.65; color: var(--we-ink-2, rgba(128, 128, 128, 0.9)); }
@@ -4200,8 +4193,8 @@ window.__ModuleLoader__.load({
 				    font-size: 0.75em; line-height: 1.4; color: var(--we-ink-2, rgba(128, 128, 128, 0.9));
 				    user-select: text; word-break: break-all;
 				  }
-				  /* 两张二维码并排（各 240px 起），容器不够宽就换行堆叠 —— 抽屉那种窄壳里
-				     一张一行，码图反而更大（扫码成功率优先于"排得整齐"）。 */
+				  /* 【精简改动 2026-11-07】以下 .we-about__* 规则随「关于」页一起失效，
+				     无消费者；保留仅为减小改动面。 */
 				  .we-about__qr-row { display: flex; flex-wrap: wrap; gap: 12px; }
 				  .we-about__qr {
 				    flex: 1 1 240px; min-width: 0; margin: 0;
@@ -13870,12 +13863,11 @@ window.__ModuleLoader__.load({
 				  //   不再有页签去枚举它。恢复页签时把这一段和 PICKER_TABS 那一行一起加回来。
 
 				  // ── 【精简改动 2026-11-07】「关于」页签已整页移除（用户要求）。
-				  // 被删掉的是 `renderAboutTab()` 整个函数（含其上方 9 行说明注释，共 140 行），
-				  // 它渲染的是：项目简介 / GitHub Star 数 / QQ 与抖音群二维码 / 贡献者致谢 ——
-				  // 全是静态资讯，不含任何设置项。数据源 `about-notice` 组件行已停用，
+				  // 被删掉的是 renderAboutTab() 整个函数（含其上方 9 行说明注释，共 140 行），
+				  // 它渲染的是：项目简介 / GitHub Star 数 / 资讯区块 / 贡献者致谢 ——
+				  // 全是静态资讯，不含任何设置项。数据源 about-notice 组件行已停用，
 				  // 所以它的两条路由（/star-count、/about-qr）也已撤销。
-				  // 保留：`loadStarCount()` / `starCountLabel()` / `ABOUT_QR_*` 常量（无调用方，
-				  //   不产生请求）；恢复页签时把 PICKER_TABS 那一行与该函数一并加回来即可。
+				  // 保留：loadStarCount() / starCountLabel()（无调用方，不发起请求）。
 
 
 				  // ── 页签级重置（issue #192 用户口径：「每个选项卡后面加重置，重置指定选项卡」）──────────
@@ -24376,7 +24368,7 @@ window.__ModuleLoader__.load({
 		  //
 		  // 【精简改动 2026-11-07】「关于」页签同样整页移除（用户要求）。原第六项：
 		  //   { id: "about", get label() { return weT("关于"); } },
-		  // 该页是纯资讯页（简介 / Star 数 / 两个群二维码 / 致谢），不含任何设置，
+		  // 该页是纯资讯页（简介 / Star 数 / 资讯区块 / 致谢），不含任何设置，
 		  // 且其数据源 about-notice 组件行已停用。
 		  // 于是设置页最终为**四页签**：壁纸库 / 外观 / 播放 / 系统。
 		];

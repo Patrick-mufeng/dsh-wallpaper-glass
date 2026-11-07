@@ -95,7 +95,7 @@ if (hidden) {
 | B6 | **诊断族** | `routes/diag.js`、`diag-trace.js` 118 行、`/diag` `/diag-log` `/client-diag` + 内联 `live-layer-diag.js` | ~250 行 + 3 条路由 | **低** | 出问题少一个排查入口 |
 | B7 | **适配器矩阵** | 内联 `adapter.js` 146 行 + `media-origin.js` 139 行 + `/media-origin` | ~300 行 | **中** | 影响网页壁纸载荷来源判定，牵涉安全栅栏，**不建议动** |
 | B8 | **缓存目录浏览器** | `routes/cache-dir.js` 140 行 + `/cache-dir/browse` + 内联面板 ~130 行 | ~270 行 + 1 条路由 | **低** | 保留 `/cache-dir` 手动填路径即可 |
-| B9 | **"关于"页签静态内容** | `renderAboutTab` 全函数 + `about-assets.js` + `lib/about/*` **268 KB**（QQ/抖音二维码、公告图） | ~200 行 + 268 KB | **低** | 纯资讯页 |
+| B9 | **"关于"页签静态内容** | `renderAboutTab` 全函数 + `about-assets.js` + `lib/about/*` **268 KB**（静态配图、公告图） | ~200 行 + 268 KB | **低** | 纯资讯页 |
 
 ---
 

@@ -79,14 +79,14 @@ dsh plugin --profile web add <同上>
 | `-fx` | 点击涟漪 / 拖尾特效 | 50 KB |
 | `-parallax` | 3D 视差层 | 102 KB |
 | `-pet-link` | 桌宠联动（依赖外部 `dshpet-dshwe` 运行时） | **20.3 MB 素材** + 5 条路由 |
-| `-about-notice` | 「关于」页签的 Star 数与群二维码 | 23 KB + 2 条路由 |
+| `-about-notice` | 「关于」页签的 Star 数与静态配图 | 23 KB + 2 条路由 |
 
 ### 二、设置页签（6 → 4）
 
 移除「扩展」「关于」两个页签：
 
 - **「扩展」**原有四张卡：自定义会话头像、点击拖尾、3D 效果、桌宠联动 —— 四个来源包全部移除，页签已无内容可画。
-- **「关于」**是纯资讯页（简介 / Star 数 / 群二维码 / 致谢），不含任何设置；其数据源 `about-notice` 已移除，同时**去掉了对 GitHub 外网 API 的请求**。
+- **「关于」**是纯资讯页（简介 / Star 数 / 静态配图 / 致谢），不含任何设置；其数据源 `about-notice` 已移除，同时**去掉了对 GitHub 外网 API 的请求**。
 
 现在：**壁纸库 / 外观 / 播放 / 系统**。
 
@@ -96,7 +96,7 @@ dsh plugin --profile web add <同上>
 |---|---|---|
 | `assets/rope/` | 10 张吉祥物立绘 | 吉祥物已移除，无消费者 |
 | `assets/readme/` | 41 张 README 插图 | 非运行必需 |
-| `lib/about/` + `assets/about/` | QQ/抖音群二维码、更新公告图 | 「关于」页已移除 |
+| `lib/about/` + `assets/about/` | 静态配图与更新公告插图 | 「关于」页已移除 |
 
 > 连带把 `lib/index.js` 里的 `registerRopeArtRoutes` 注册点与 import 一并下线（路由服务这些立绘，图已不存在）。
 
@@ -181,7 +181,7 @@ dsh plugin --profile web add <同上>
 
 **代码**以 [MIT License](LICENSE) 发布，原始版权归 **elysia395** 所有（本分支的全部改动同样以 MIT 发布）。
 
-**素材**的授权可能不同 —— 上游 `SOURCES.md` 明确说明「壁纸、角色与字体素材的授权可能不同，再分发或商用前请核对素材说明」。本仓库已剔除角色立绘、群二维码等素材，仅保留运行必需的图标与出厂预设。
+**素材**的授权可能不同 —— 上游 `SOURCES.md` 明确说明「壁纸、角色与字体素材的授权可能不同，再分发或商用前请核对素材说明」。本仓库已剔除角色立绘、静态配图等素材，仅保留运行必需的图标与出厂预设。
 
 上游项目：https://github.com/elysia395/dsh-wallpaper-engine
 

@@ -11,7 +11,7 @@
 # dsh-plugin-wallpaper-engine*。
 #
 diff --git a/lib/client.js b/lib/client.js
-index 93d52f8..6a84afd 100644
+index 93d52f8..2fb12a7 100644
 --- a/lib/client.js
 +++ b/lib/client.js
 @@ -1,5 +1,5 @@
@@ -21,7 +21,56 @@ index 93d52f8..6a84afd 100644
  	factory: (require) => {
  		var module = { exports: {} };
  		var exports = module.exports;
-@@ -2148,6 +2148,110 @@ window.__ModuleLoader__.load({
+@@ -21,17 +21,16 @@ window.__ModuleLoader__.load({
+ 				// 项目仓库（README / package.json 的同一条地址）：关于页的按钮与可复制文本都用它。
+ 				const ABOUT_REPO_URL = "https://github.com/elysia395/dsh-wallpaper-engine";
+ 
+-				// 两张二维码的**路由路径**（相对 BASE，交给 apiUrl 拼前缀）：
+-				//   · QQ 群「DSHWE | LLM 讨论群」     → lib/about/qq-group.png
+-				//   · 抖音群「dsh 交流群」            → lib/about/douyin-group.png
+-				// 文件名与 packages/about-notice/lib/routes/about-qr.js 的白名单**逐字相同**（守卫两边对账）。
+-				const ABOUT_QR_QQ_PATH = "/about-qr/qq-group.png";
+-				const ABOUT_QR_DOUYIN_PATH = "/about-qr/douyin-group.png";
++				// 【精简改动 2026-11-07】两条指向静态配图的路径常量已移除（连同其注释）。
++				// 它们曾供「关于」页使用；该页已整页裁掉、对应图片也已从发行版剔除，
++				// 常量再无消费者 ⇒ 一并删除（避免留下指向不存在文件的死配置）。
+ 
+ 				// 「更新公告」一次弹窗的配图（v1.3.0 起：GitHub 求星插画，JPEG 720×720）：
+ 				//   · 派生自 assets/about/update-notice-star-1254x1254.png（缩到 720px、JPEG q88）
+ 				//   · 随包发布 lib/about/update-notice.jpg，由 /about-qr 路由族直出（同一白名单）
+ 				//   · 版本换图 = 替换 lib/about/update-notice.jpg 的字节，路径与产物都不动（ETag 会变）。
++				// ⚠️ 本版已剔除 lib/about/ 与 about-notice 行 ⇒ 这张图取不到；更新公告
++				//    （UpdateNotice）仍会正常弹出，只是退化为**无图形态**（art-gate 探测不到就不画 img）。
+ 				const NOTICE_ART_PATH = "/about-qr/update-notice.jpg";
+ 
+ 				// ── 内联模块：src/we-base.js —— 浏览器半边的最小地基：三枚到处都用的纯工具（唯一实现）—— 钳位 `weClampTo` · 单调时钟 `weNow` · body 根 `weBody`；零依赖 + 零顶层可执行语句，故可排在内联清单最前（构建期注入；勿手改本段）──
+@@ -954,7 +953,7 @@ window.__ModuleLoader__.load({
+ 				  "立绘": "mascot art",
+ 				  "清除失败：{error}": "Clear failed: {error}",
+ 
+-				  // ── src/panel-tabs.js · 「关于」页签（简介 / 致谢 / 仓库 / 交流群）──
++				  // ── src/panel-tabs.js · 「关于」页签（简介 / 致谢 / 仓库 / 资讯区块）──
+ 				  //    人名与项目标识不译（oneincase / YV3507 / WebWallGL / media-bridge / scene-gl…）；
+ 				  //    中文全角标点只出现在键里 —— 值里一律 ASCII（守卫会把全角标点当"中文"判红）。
+ 				  "关于": "About",
+@@ -984,14 +983,8 @@ window.__ModuleLoader__.load({
+ 				  "来自 GitHub API 的实时数据（带缓存；拉不到时显示上一次取到的值）": "Live data from the GitHub API (cached; when GitHub cannot be reached the last known value is shown)",
+ 				  "🔗 仓库地址（按钮打不开时可手动复制）：": "🔗 Repository URL (copy it manually if the button does nothing):",
+ 				  "想要新功能、遇到问题，或者想看看接下来要做什么，都欢迎来仓库提 Issue / PR —— 一起把它做得更好 🧰": "Want a new feature, hit a problem, or curious what is next? File an Issue / PR in the repo — let's make it better together. 🧰",
+-				  "💬 加入交流群": "💬 Join the community",
+-				  "卡住了、想吐槽、或者想第一时间拿到新版本，都欢迎来群里找我们 👋": "Stuck, want to vent, or want new versions the moment they land? Come find us in the groups. 👋",
+-				  "🐧 QQ 群 · DSHWE | LLM 讨论群": "🐧 QQ group · DSHWE | LLM discussion",
+-				  "🎵 抖音群 · dsh 交流群": "🎵 Douyin group · dsh community",
+-				  "QQ 群二维码": "QQ group QR code",
+-				  "抖音群二维码": "Douyin group QR code",
+-				  "手机 QQ 扫码加入 · 群里见 👋": "Scan with QQ on your phone to join · see you there 👋",
+-				  "抖音扫码加入 · 群号 252729465001": "Scan in Douyin to join · group ID 252729465001",
++				  // 【精简改动 2026-11-07】「关于」页专用的一整段词条已移除：它们只服务
++				  // 该页的资讯区块，而那个页签已整页裁掉 ⇒ 留下是无人消费的死文案。
+ 				  "💌 感谢每一位使用者 —— 换上你喜欢的那张壁纸，这个插件就没白写。": "💌 Thanks to every user — put up a wallpaper you love and this plugin has done its job.",
+ 				  // ══ UPDATE NOTICE COPY（begin）══════════════════════════════════════════════
+ 				  // 本区段是**纯公告文案词条**：CI 的 `notice` 快通道只在这一段内放行"只改字符串内容"
+@@ -2148,6 +2141,110 @@ window.__ModuleLoader__.load({
  				     sectionList): the ul/li carry no default list styling. */
  				  .we-picker__section-list { margin: 0; padding: 0; list-style: none; }
  
@@ -132,7 +181,7 @@ index 93d52f8..6a84afd 100644
  				  /* 统一运行器发放绘制资格，不通过共享令牌或任意后代清底。 */
  				  body[data-we-glass-page] :where([data-we-surface-runtime="settings-window"],[data-we-surface-runtime="declared"],[data-we-layout-runtime]) {
  				    background: transparent !important;
-@@ -2396,8 +2500,12 @@ window.__ModuleLoader__.load({
+@@ -2396,8 +2493,12 @@ window.__ModuleLoader__.load({
  				         · text-decoration：<a> 默认带下划线。 */
  				    display: inline-flex; align-items: center; justify-content: center; vertical-align: middle;
  				    box-sizing: border-box; height: var(--we-ui-h, 30px); padding: 0 12px;
@@ -147,7 +196,7 @@ index 93d52f8..6a84afd 100644
  				    color: var(--we-ink, inherit); font: inherit; font-size: 0.82em; line-height: 1;
  				    text-decoration: none; white-space: nowrap; cursor: pointer;
  				  }
-@@ -2494,18 +2602,32 @@ window.__ModuleLoader__.load({
+@@ -2494,18 +2595,32 @@ window.__ModuleLoader__.load({
  				  .we-picker__note { font-size: 0.8em; opacity: 0.85; color: var(--we-accent, var(--dsw-alias-brand-primary, #4f8cff)); }
  
  				  /* ── Visual grouping: sections with a hairline divider + quiet label. ── */
@@ -188,7 +237,7 @@ index 93d52f8..6a84afd 100644
  				  }
  				  /* ── 可折叠节头（侧栏「外观」页默认收起的整节，如「全局字体」）：
  				     整行可点（role=button + aria-expanded 挂在头上），箭头随开合旋转；
-@@ -2532,8 +2654,15 @@ window.__ModuleLoader__.load({
+@@ -2532,8 +2647,15 @@ window.__ModuleLoader__.load({
  				  /* ── 侧栏窄栏兜底：展开「全局字体」后的排版角色表比栏宽，横向滚动而不是撑破面板。 ── */
  				  .we-qp__tabbody .we-picker__font-table { max-width: 100%; overflow-x: auto; }
  
@@ -206,7 +255,7 @@ index 93d52f8..6a84afd 100644
  				  .we-tabs {
  				    position: relative; display: flex; flex: 0 0 auto;
  				    padding: 3px; border-radius: 10px;
-@@ -2557,6 +2686,38 @@ window.__ModuleLoader__.load({
+@@ -2557,6 +2679,38 @@ window.__ModuleLoader__.load({
  				    color: var(--we-ink-2, rgba(128, 128, 128, 0.9));
  				    transition: color var(--we-dur-fast, 120ms) var(--we-ease, ease);
  				  }
@@ -245,7 +294,7 @@ index 93d52f8..6a84afd 100644
  				  .we-tabs__tab:hover { color: var(--we-ink, inherit); }
  				  .we-tabs__tab--active { color: var(--we-ink, inherit); font-weight: 600; }
  				  /* 页签面板：淡入 + 轻微上移落定（reduced-motion 由全局媒体查询静止）。 */
-@@ -2568,12 +2729,16 @@ window.__ModuleLoader__.load({
+@@ -2568,12 +2722,16 @@ window.__ModuleLoader__.load({
  				    from { opacity: 0; transform: translateY(4px); }
  				  }
  
@@ -265,7 +314,7 @@ index 93d52f8..6a84afd 100644
  				  /* ── 分段控件在「左说明 / 右控件」行里的取宽口径（#253）────────────────────────
  				     说明可以是长句（max-content 会吃满整行），若控件仍用 flex:1（basis 0）就只能分到
  				     「剩余宽度」⇒ 三元组被压成几像素宽的窄格、文字互相截断。两条口径：
-@@ -2598,18 +2763,86 @@ window.__ModuleLoader__.load({
+@@ -2598,18 +2756,86 @@ window.__ModuleLoader__.load({
  				     "此刻是谁在决定颜色"。pointer-events:none 同时挡掉色板与取色器；渲染器那边也给了空
  				     处理器 —— 两道都有，样式万一挂了也不至于写脏配置。 */
  				  .we-picker__ctl--disabled { opacity: 0.45; pointer-events: none; }
@@ -355,7 +404,7 @@ index 93d52f8..6a84afd 100644
  				  .we-picker__swatches { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
  
  				`;
-@@ -2767,10 +3000,14 @@ window.__ModuleLoader__.load({
+@@ -2767,10 +2993,14 @@ window.__ModuleLoader__.load({
  
  				  /* ── 效果页签空态：不摆一列无效滑块，引导去选壁纸。 ── */
  				  .we-picker__empty {
@@ -373,7 +422,7 @@ index 93d52f8..6a84afd 100644
  
  				  /* ── Vinyl record (黑胶唱片): rotating disc with the selected wallpaper's
  				     cover as the label. Spins while the wallpaper is playing; pauses
-@@ -3392,7 +3629,9 @@ window.__ModuleLoader__.load({
+@@ -3392,7 +3622,9 @@ window.__ModuleLoader__.load({
  				  .we-picker__rate {
  				    /* basis 用 auto 而不是 0（#253）：flex-basis:0 的项在换行计算里按 0 宽参与，11 个键
  				       会全挤在同一行、各自压到几像素。auto 让换行先看见每键的内容宽，再由父级分配剩余。 */
@@ -384,7 +433,33 @@ index 93d52f8..6a84afd 100644
  				    border: 1px solid var(--dsw-alias-border-l2, rgba(128, 128, 128, 0.35));
  				    border-radius: var(--we-ui-radius, 8px); background: transparent; cursor: pointer;
  				    color: var(--we-ink-2, rgba(128, 128, 128, 0.9));
-@@ -4571,7 +4810,7 @@ window.__ModuleLoader__.load({
+@@ -3936,10 +4168,10 @@ window.__ModuleLoader__.load({
+ 				 * 不得有顶层可执行语句去读宿主状态（内联位置早于 client.js 正文）、整体是**纯数据**。
+ 				 */
+ 				const CSS_EXT = `
+-				  /* ── 「关于」页签：静态页（简介 / 致谢 / 仓库 / 交流群二维码）──
+-				     排版口径与设置行一致：正文走主题墨色 token（不新造颜色），只有二维码卡片
+-				     自带一层极薄的玻璃底衬 —— 码图本身是**不透明白底 PNG**，深色主题下若直接
+-				     贴在玻璃上会像一块补丁，故给它圆角 + 边框 + 一点呼吸空间。 */
++				  /* ── 【精简改动 2026-11-07】「关于」页签的样式已整段失效 ──────────────
++				     该页已整页裁掉，以下 .we-about__* 规则**无任何 DOM 消费者**。
++				     保留它们只是为了减少改动面（纯 CSS、不加载、不影响任何渲染）；
++				     如需进一步瘦身可整段删除。 */
+ 				  .we-about__lead { display: flex; flex-direction: column; gap: 8px; }
+ 				  .we-about__lead-title { font-size: 0.95em; font-weight: 600; color: var(--we-ink, inherit); }
+ 				  .we-about__p { margin: 0; font-size: 0.82em; line-height: 1.65; color: var(--we-ink-2, rgba(128, 128, 128, 0.9)); }
+@@ -3961,8 +4193,8 @@ window.__ModuleLoader__.load({
+ 				    font-size: 0.75em; line-height: 1.4; color: var(--we-ink-2, rgba(128, 128, 128, 0.9));
+ 				    user-select: text; word-break: break-all;
+ 				  }
+-				  /* 两张二维码并排（各 240px 起），容器不够宽就换行堆叠 —— 抽屉那种窄壳里
+-				     一张一行，码图反而更大（扫码成功率优先于"排得整齐"）。 */
++				  /* 【精简改动 2026-11-07】以下 .we-about__* 规则随「关于」页一起失效，
++				     无消费者；保留仅为减小改动面。 */
+ 				  .we-about__qr-row { display: flex; flex-wrap: wrap; gap: 12px; }
+ 				  .we-about__qr {
+ 				    flex: 1 1 240px; min-width: 0; margin: 0;
+@@ -4571,7 +4803,7 @@ window.__ModuleLoader__.load({
  				let weSidebarOpenFn = null; // 官方态的 openTab 调用（抽屉态为 null）
  				let weSidebarCtrl = null;   // 官方态控制器（isExpanded/active/toggleExpanded 的宿主面）
  				const WE_SIDEBAR_KIND = "wallpaper-library";
@@ -393,7 +468,7 @@ index 93d52f8..6a84afd 100644
  
  				function sidebarRightMode() {
  				  return weSidebarMode;
-@@ -13544,51 +13783,30 @@ window.__ModuleLoader__.load({
+@@ -13544,51 +13776,30 @@ window.__ModuleLoader__.load({
  
  				  function renderMascotTab(ctx) {
  				    const { onRopeScaleChange, onRopeVisibilityChange, onMascotFormConfirm, onDisarmConfirm, sel, paneWidth } = ctx;
@@ -463,7 +538,7 @@ index 93d52f8..6a84afd 100644
  
  
  				  // 这一层保留"空态提前返回 + 唯一的节外壳"，把**节里的内容**按块分给子渲染器；
-@@ -13642,227 +13860,22 @@ window.__ModuleLoader__.load({
+@@ -13642,227 +13853,21 @@ window.__ModuleLoader__.load({
  				      renderAdvancedDiagSection(ctx),
  				    );
  				  }
@@ -697,16 +772,15 @@ index 93d52f8..6a84afd 100644
 -				    );
 -				  }
 +				  // ── 【精简改动 2026-11-07】「关于」页签已整页移除（用户要求）。
-+				  // 被删掉的是 `renderAboutTab()` 整个函数（含其上方 9 行说明注释，共 140 行），
-+				  // 它渲染的是：项目简介 / GitHub Star 数 / QQ 与抖音群二维码 / 贡献者致谢 ——
-+				  // 全是静态资讯，不含任何设置项。数据源 `about-notice` 组件行已停用，
++				  // 被删掉的是 renderAboutTab() 整个函数（含其上方 9 行说明注释，共 140 行），
++				  // 它渲染的是：项目简介 / GitHub Star 数 / 资讯区块 / 贡献者致谢 ——
++				  // 全是静态资讯，不含任何设置项。数据源 about-notice 组件行已停用，
 +				  // 所以它的两条路由（/star-count、/about-qr）也已撤销。
-+				  // 保留：`loadStarCount()` / `starCountLabel()` / `ABOUT_QR_*` 常量（无调用方，
-+				  //   不产生请求）；恢复页签时把 PICKER_TABS 那一行与该函数一并加回来即可。
++				  // 保留：loadStarCount() / starCountLabel()（无调用方，不发起请求）。
  
  
  				  // ── 页签级重置（issue #192 用户口径：「每个选项卡后面加重置，重置指定选项卡」）──────────
-@@ -24354,13 +24367,31 @@ window.__ModuleLoader__.load({
+@@ -24354,13 +24359,31 @@ window.__ModuleLoader__.load({
  		  { id: "appearance", get label() { return weT("外观"); } },
  		  { id: "playback", get label() { return weT("播放"); } },
  		  { id: "system", get label() { return weT("系统"); } },
@@ -721,7 +795,7 @@ index 93d52f8..6a84afd 100644
 +		  //
 +		  // 【精简改动 2026-11-07】「关于」页签同样整页移除（用户要求）。原第六项：
 +		  //   { id: "about", get label() { return weT("关于"); } },
-+		  // 该页是纯资讯页（简介 / Star 数 / 两个群二维码 / 致谢），不含任何设置，
++		  // 该页是纯资讯页（简介 / Star 数 / 资讯区块 / 致谢），不含任何设置，
 +		  // 且其数据源 about-notice 组件行已停用。
 +		  // 于是设置页最终为**四页签**：壁纸库 / 外观 / 播放 / 系统。
  		];
@@ -740,7 +814,7 @@ index 93d52f8..6a84afd 100644
  		};
  		// ── 可见页签表（ADR-0013 D3① 的"页签安全" + P-D S5e 的 D-6(b) 收口）──────────
  		// 口径：**整页**都归某个子包浏览器半边的页签，只有在那一半真的在台上时才进导航。为什么必须
-@@ -26814,14 +26845,16 @@ window.__ModuleLoader__.load({
+@@ -26814,14 +26837,16 @@ window.__ModuleLoader__.load({
  		    // 下钻的库视图也随页签一起退出：否则切走再切回来，看到的还是库而不是该页内容。
  		    if (selection.pickerOpen) setTransient("pickerOpen", false);
  		    setTransient("pickerDraft", false);
@@ -762,7 +836,7 @@ index 93d52f8..6a84afd 100644
  
  		  // 页签安全（ADR-0013 D3① + D-6(b)）：可见页签表变了（面板节注册表变化 / 组件行状态随
  		  // inventory 轮询回到本地）而当前页签不在表里 ⇒ 回落到第一个可见页签，自愈、不用用户自己点走。
-@@ -26987,49 +27020,23 @@ window.__ModuleLoader__.load({
+@@ -26987,49 +27012,23 @@ window.__ModuleLoader__.load({
  		  // 渲染器只拿值 + 回调（同模态框那条契约）。判定就一句：
  		  // token 变了且不在加载中才重拉。
  		  // ── 页签面板内容（函数声明提升，renderActiveTab 在 return 里先调用）──────
@@ -826,7 +900,7 @@ index 93d52f8..6a84afd 100644
  		    if (activeTab === "appearance") return renderAppearanceTab({
  		      setSetting, setTransient,
  		      fontSet: fontSetCtx(),
-@@ -28288,8 +28295,15 @@ window.__ModuleLoader__.load({
+@@ -28288,8 +28287,15 @@ window.__ModuleLoader__.load({
  		//    屏上顺序 = (order, 注册序)：头像固定 order 1，子包各自声明 2 / 3（跨包求值顺序不是契约）。
  		//    子包产物可能**在本组件挂载之后**才求值（loader 按需）⇒ 挂载期还要装一个 attacher
  		//    让迟到的层立刻补接（见 ctx.effect 里的 weSetLayerAttacher）。
@@ -844,7 +918,7 @@ index 93d52f8..6a84afd 100644
  
  		function apply(ctx) {
  		  // 0. i18n：把插件文案接上宿主的 locale 服务（`ctx.get("locale")`，可选服务 + 短轮询 ——
-@@ -28717,8 +28731,14 @@ window.__ModuleLoader__.load({
+@@ -28717,8 +28723,14 @@ window.__ModuleLoader__.load({
  
  		  // 3. Chat-interface rope dock: the draggable pull-cord + glass repo side
  		  //    panel, portalled onto <body> under its own React root — independent of
@@ -861,7 +935,7 @@ index 93d52f8..6a84afd 100644
  		  if (ctx.effect && typeof document !== "undefined" &&
  		      typeof ReactDOM !== "undefined" && typeof ReactDOM.createRoot === "function") {
  		    ctx.effect(() => {
-@@ -28730,7 +28750,7 @@ window.__ModuleLoader__.load({
+@@ -28730,7 +28742,7 @@ window.__ModuleLoader__.load({
  		      }
  		      if (!host) return undefined;
  		      const root = ReactDOM.createRoot(host);
@@ -870,7 +944,7 @@ index 93d52f8..6a84afd 100644
  		      return () => {
  		        try { root.unmount(); } catch { /* already gone */ }
  		        if (host.parentNode) host.parentNode.removeChild(host);
-@@ -28832,7 +28852,7 @@ window.__ModuleLoader__.load({
+@@ -28832,7 +28844,7 @@ window.__ModuleLoader__.load({
  		};
  
  		// ── 跨包浏览器半边通道（ADR-0014 S5.1 / S5.4「宿主注入显式键集」）────────────────────
